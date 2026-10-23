@@ -9,10 +9,10 @@
 // firestore.rules, which only lets the two allowed Google accounts read or write.
 
 export const firebaseConfig = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  storageBucket: "PASTE_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "PASTE_SENDER_ID",
-  appId: "PASTE_APP_ID",
+  apiKey: "AIzaSyBZ_c_1jabPUH6cWnZ9mzf4gozPSC9w9Yc",
+  authDomain: "zizidonna-dashboard.firebaseapp.com",
+  projectId: "zizidonna-dashboard",
+  storageBucket: "zizidonna-dashboard.firebasestorage.app",
+  messagingSenderId: "856325297827",
+  appId: "1:856325297827:web:ec91d358fcee1ccd8b1116",
 };
