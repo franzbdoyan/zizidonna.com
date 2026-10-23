@@ -41,11 +41,11 @@ Search the HTML for `data-todo` to find every one.
 | Placeholder | Where | Replace with |
 |---|---|---|
 | `shopmy-link` | Home (twice), Cars | the ShopMy storefront URL once approved |
-| `cal-link` | Sessions (two buttons) | the two Cal.com event links, with Stripe payments switched on |
-| `substack-publication` | Home, Guides, Letter | the real Substack subdomain in the iframe `src` and the fallback links |
+| ~~`cal-link`~~ | Sessions (two buttons) | done: `cal.com/zizidonna/feature-first-session` and `/closet-edit`; update if the Cal.com username changes |
+| ~~`substack-publication`~~ | Home, Guides, Letter | done: `zizidonna.substack.com` |
 | `gumroad-proportions`, `gumroad-strong-nose` | Guides | Gumroad product links, and change the button text to "Buy", when the PDFs exist |
-| `tally-form` | Work with me, Contact | the Tally form embed URL (`https://tally.so/embed/FORM_ID?...`) |
-| `manager-email` | Work with me, Contact | the real partnership address; `hello@zizidonna.com` does not exist until Google Workspace is set up on the domain |
+| ~~`tally-form`~~ | Work with me, Contact | done: forms `OQDqX8` (partnership) and `X5xALj` (contact) |
+| ~~`manager-email`~~ | Work with me, Contact | done: `collab@zizidonna.com` (brands) and `info@zizidonna.com` (everything else), both Squarespace forwards |
 | `media-kit-link` | Work with me | keep, or swap for a PDF export of the media kit |
 | `about-her-words` | About | two or three sentences from Zizi |
 | `upcoming-shows` | Cars | the next car show, or remove the list |
