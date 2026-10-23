@@ -1,0 +1,56 @@
+// Firestore security rules for the zizidonna.com dashboard.
+//
+// Paste this whole file into Firebase console → Firestore Database → Rules → Publish.
+// These rules are the security boundary. The web config in firebase-config.js is
+// public; without these rules anyone with it could read the data.
+//
+// What they allow, in plain words:
+//   1. Only two Google accounts get in: the manager and Zizi. The check uses the
+//      email inside the sign-in token that Google issued, so it cannot be faked
+//      from the browser, and the address must be verified (Google accounts are).
+//   2. Those two accounts can read every document in the `brands` collection.
+//   3. They can create and update `brands` documents, as long as the document id
+//      is a three-digit rank (001–999), only the dashboard's own fields are used,
+//      Zizi's 0–5 answer is a whole number from 0 to 5 (or empty), and the
+//      `updated_by` stamp is the email of whoever is signed in.
+//   4. Nobody can delete a brand from the dashboard. The dashboard never deletes;
+//      if a row must go, delete it in the Firebase console (the console is not
+//      bound by these rules).
+//   5. Everything else, in any other collection, is denied to everyone.
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Rule 1: the two allowed accounts, verified, signed in with Google.
+    function isTeam() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['franzbdoyan@gmail.com', 'zizidonnastyle@gmail.com'];
+    }
+
+    // Rule 3: the shape of a brand document after the write.
+    function isValidBrand(brandId) {
+      let d = request.resource.data;
+      return brandId.matches('^[0-9]{3}$')
+        && d.keys().hasOnly([
+             'rank', 'brand', 'category', 'score', 'verdict', 'route_in', 'template', 'url', 'notes',
+             'zizi_w', 'zizi_owns', 'zizi_note', 'zizi_answered_at',
+             'manager_note', 'updated_at', 'updated_by'
+           ])
+        && (!('zizi_w' in d) || d.zizi_w == null || (d.zizi_w is int && d.zizi_w >= 0 && d.zizi_w <= 5))
+        && (!('zizi_owns' in d) || d.zizi_owns is bool)
+        && d.updated_by == request.auth.token.email;
+    }
+
+    // Rules 2–4: the brand list.
+    match /brands/{brandId} {
+      allow read: if isTeam();
+      allow create, update: if isTeam() && isValidBrand(brandId);
+      allow delete: if false;
+    }
+
+    // Rule 5 needs no line of its own: anything not matched above is denied.
+  }
+}

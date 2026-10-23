@@ -1,6 +1,6 @@
 # zizidonna.com
 
-Static site, no build step. Eight pages, one stylesheet, no JavaScript beyond an image fallback. Hosted on GitHub Pages at the custom domain; the embeds (Cal.com, Gumroad, Substack, Tally, ShopMy) carry the booking, payments, email and forms.
+Static site, no build step. Eight pages, one stylesheet, no JavaScript beyond an image fallback (the private dashboard below is the one exception). Hosted on GitHub Pages at the custom domain; the embeds (Cal.com, Gumroad, Substack, Tally, ShopMy) carry the booking, payments, email and forms.
 
 This folder is the whole repository. Keep the planning documents in the parent folder out of it; the repository is public.
 
@@ -62,6 +62,22 @@ Add one line before `</head>` on every page. GoatCounter:
 ```
 Cloudflare Web Analytics works the same way with its own snippet.
 
+## Dashboard
+
+`/dashboard/` is a private two-person page where the manager and Zizi work through the brand list (Google sign-in through Firebase; data in Cloud Firestore; only two accounts allowed, enforced by the database rules). Every page header links to it as "Login". It is `noindex` and not in `sitemap.xml`. No brand data is in this repository: the list is imported into the database from the private tracker CSV.
+
+Setup, from creating the Firebase project to the first import, is in `setup-dashboard.md` in the parent project folder.
+
+| File | What it is |
+|---|---|
+| `dashboard/index.html` | the page |
+| `dashboard/dashboard.css` | its styles, on top of `assets/style.css` |
+| `dashboard/dashboard.js` | sign-in, live list, autosave, CSV import/export (manager only), mock mode |
+| `dashboard/firebase-config.js` | the Firebase web config (public by design; placeholders until setup step 8) |
+| `dashboard/firestore.rules` | the security rules to paste into the Firebase console; the real lock |
+
+Preview the layout without Firebase at `/dashboard/?mock=1` (made-up rows, nothing saved; `&as=zizi` shows Zizi's view).
+
 ## Editing
 
-Every page repeats the same header and footer; change them in all eight files (and `404.html`). Styles live in `assets/style.css`. Colors and fonts are the CSS variables at the top.
+Every page repeats the same header and footer; change them in all eight files (and `404.html` and `dashboard/index.html`). Styles live in `assets/style.css`. Colors and fonts are the CSS variables at the top.

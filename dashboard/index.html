@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · Zizi Donna</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/dashboard/dashboard.css">
+<script type="module" src="/dashboard/dashboard.js"></script>
+</head>
+<body class="dash">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site">
+  <div class="wrap">
+    <a class="logo" href="/">Zizi Donna</a>
+    <nav class="main" aria-label="Main">
+      <a href="/sessions/">Sessions</a>
+      <a href="/guides/">Guides</a>
+      <a href="/cars/">Cars</a>
+      <a href="/letter/">Letter</a>
+      <a href="/brands/">Work with me</a>
+    </nav>
+    <a class="login" href="/dashboard/" aria-current="page">Login</a>
+  </div>
+</header>
+
+<div class="mockbar" id="mockbar" hidden>
+  <div class="wrap">
+    <strong>Mock mode</strong>
+    <span>Sample data. Nothing is saved anywhere.</span>
+    <span class="mock-as" role="group" aria-label="View as">
+      View as
+      <button type="button" class="linkish" data-mock-as="manager">Manager</button>
+      <button type="button" class="linkish" data-mock-as="zizi">Zizi</button>
+    </span>
+  </div>
+</div>
+
+<main id="main" class="wrap dash-main">
+
+  <!-- Loading: shown until auth state is known -->
+  <section class="state" id="view-loading" aria-live="polite">
+    <p class="eyebrow">Dashboard</p>
+    <p class="fine">Loading…</p>
+  </section>
+
+  <!-- Problem: config missing, SDK failed to load, etc. -->
+  <section class="state" id="view-problem" hidden>
+    <p class="eyebrow">Dashboard</p>
+    <h1 class="state-title" id="problem-title">Not connected yet.</h1>
+    <div class="problem" id="problem-body" role="alert"></div>
+  </section>
+
+  <!-- Signed out -->
+  <section class="state" id="view-signin" hidden>
+    <p class="eyebrow">Dashboard</p>
+    <h1 class="state-title">Sign in.</h1>
+    <p class="lede">Internal. Two accounts only.</p>
+    <div class="btn-row">
+      <button type="button" class="btn primary" id="signin-btn">Sign in with Google</button>
+    </div>
+    <p class="fine inapp" id="inapp-hint" hidden>This looks like an app's built-in browser, where Google often refuses to sign in. If it fails, open this page in Safari or Chrome: tap ⋯ or the share icon, then “Open in browser”.</p>
+    <p class="notice" id="signin-msg" role="alert" hidden></p>
+  </section>
+
+  <!-- Signed in -->
+  <section class="board" id="view-board" hidden aria-labelledby="board-title">
+    <h1 class="sr-only" id="board-title">Brand list</h1>
+
+    <div class="topbar">
+      <div class="who">
+        <span class="who-email" id="who-email"></span>
+        <span class="who-role" id="who-role"></span>
+      </div>
+      <button type="button" class="btn small" id="signout-btn">Sign out</button>
+      <div class="progress">
+        <p class="progress-line" id="progress-line" aria-live="polite">Answered 0 of 0</p>
+        <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="tools" id="manager-tools" hidden>
+      <input type="file" id="import-file" accept=".csv,text/csv" class="sr-only">
+      <label class="btn small" for="import-file">Import tracker CSV</label>
+      <button type="button" class="btn small" id="export-btn">Export CSV</button>
+      <p class="fine tools-msg" id="tools-msg" role="status"></p>
+    </div>
+
+    <div class="filters" role="search" aria-label="Filter brands">
+      <div class="chips" id="chips" role="group" aria-label="Category"></div>
+      <div class="filter-row">
+        <label class="switch">
+          <input type="checkbox" id="unanswered-only">
+          <span>Unanswered only</span>
+        </label>
+        <label class="search">
+          <span class="sr-only">Search</span>
+          <input type="search" id="search" placeholder="Search brands, notes" autocomplete="off" enterkeyhint="search">
+        </label>
+      </div>
+      <p class="fine count" id="count-line" aria-live="polite"></p>
+    </div>
+
+    <p class="notice" id="board-msg" role="alert" hidden></p>
+    <div class="empty" id="empty" hidden></div>
+    <div class="brand-list" id="brand-list"></div>
+  </section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div>Private. Not indexed.</div>
+    <nav aria-label="Footer"><a href="/">Home</a><a href="/contact/">Contact</a></nav>
+  </div>
+</footer>
+</body>
+</html>

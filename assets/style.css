@@ -32,6 +32,14 @@ header.site .wrap { display: flex; flex-wrap: wrap; align-items: center; justify
 nav.main { display: flex; flex-wrap: wrap; gap: 4px 18px; font-family: var(--mono); font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; }
 nav.main a { text-decoration: none; color: var(--muted); padding: 6px 0; border-bottom: 2px solid transparent; }
 nav.main a[aria-current="page"], nav.main a:hover { color: var(--fg); border-bottom-color: var(--accent); }
+/* Login: after the nav, far right, quieter than the nav links. Below 700px it moves up beside the logo so the nav keeps its own line. */
+header.site nav.main { margin-left: auto; }
+header.site .login { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-decoration: none; padding: 6px 0; }
+header.site .login:hover, header.site .login[aria-current="page"] { color: var(--fg); text-decoration: underline; }
+@media (max-width: 700px) {
+  header.site .login { order: 1; }
+  header.site nav.main { order: 2; flex-basis: 100%; margin-left: 0; }
+}
 
 /* Type */
 h1, h2, h3 { font-family: var(--display); font-weight: 500; line-height: 1.05; letter-spacing: -.01em; text-wrap: balance; margin: 0; }
