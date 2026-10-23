@@ -1,0 +1,67 @@
+# zizidonna.com
+
+Static site, no build step. Eight pages, one stylesheet, no JavaScript beyond an image fallback. Hosted on GitHub Pages at the custom domain; the embeds (Cal.com, Gumroad, Substack, Tally, ShopMy) carry the booking, payments, email and forms.
+
+This folder is the whole repository. Keep the planning documents in the parent folder out of it; the repository is public.
+
+## Publish
+
+1. Create a **public** repository under the GitHub account that belongs to this project (not a work account). Name it anything; `zizidonna.com` is conventional.
+2. From this folder:
+   ```
+   git init
+   git add -A
+   git commit -m "Site"
+   git branch -M main
+   git remote add origin git@github.com:franzbdoyan/zizidonna.com.git
+   git push -u origin main
+   ```
+3. On GitHub: Settings → Pages → Source: "Deploy from a branch" → Branch `main`, folder `/ (root)` → Save.
+4. Settings → Pages → Custom domain: `zizidonna.com` → Save. The `CNAME` file in this folder matches it, so a redeploy does not drop the setting.
+5. When the DNS check passes (below), tick **Enforce HTTPS**.
+
+## DNS at Squarespace
+
+Domains → zizidonna.com → DNS.
+
+1. Delete the forwarding rule added earlier (forwarding and A records conflict).
+2. Add four **A** records, host `@`:
+   - 185.199.108.153
+   - 185.199.109.153
+   - 185.199.110.153
+   - 185.199.111.153
+3. Add one **CNAME** record, host `www`, value `franzbdoyan.github.io` (the GitHub account name, not the repository).
+4. Leave the Google Cloud DNS nameservers as they are.
+5. Allow up to an hour, then check https://zizidonna.com in a private window. `www.zizidonna.com` redirects to the apex once GitHub sees both records.
+
+## Before launch: replace these placeholders
+
+Search the HTML for `data-todo` to find every one.
+
+| Placeholder | Where | Replace with |
+|---|---|---|
+| `shopmy-link` | Home (twice), Cars | the ShopMy storefront URL once approved |
+| `cal-link` | Sessions (two buttons) | the two Cal.com event links, with Stripe payments switched on |
+| `substack-publication` | Home, Guides, Letter | the real Substack subdomain in the iframe `src` and the fallback links |
+| `gumroad-proportions`, `gumroad-strong-nose` | Guides | Gumroad product links, and change the button text to "Buy", when the PDFs exist |
+| `tally-form` | Work with me, Contact | the Tally form embed URL (`https://tally.so/embed/FORM_ID?...`) |
+| `manager-email` | Work with me, Contact | the real partnership address; `hello@zizidonna.com` does not exist until Google Workspace is set up on the domain |
+| `media-kit-link` | Work with me | keep, or swap for a PDF export of the media kit |
+| `about-her-words` | About | two or three sentences from Zizi |
+| `upcoming-shows` | Cars | the next car show, or remove the list |
+| `shopmy-driving-wardrobe` | Cars | remove `hidden` when the Driving-wardrobe collection exists |
+| `recent-letters` | Letter | the three latest issues, once there are three |
+
+Images: see `assets/img/README.md`. Pages show a labelled placeholder until each file is dropped in.
+
+## Analytics (optional, free)
+
+Add one line before `</head>` on every page. GoatCounter:
+```
+<script data-goatcounter="https://SITE.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+```
+Cloudflare Web Analytics works the same way with its own snippet.
+
+## Editing
+
+Every page repeats the same header and footer; change them in all eight files (and `404.html`). Styles live in `assets/style.css`. Colors and fonts are the CSS variables at the top.
