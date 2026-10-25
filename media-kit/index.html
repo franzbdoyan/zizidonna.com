@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zizi Donna · Media Kit</title>
+<meta name="description" content="Media kit for Zizi Donna: audience, content pillars, reach, formats and fit.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #eef0f2; --surface: #f8f9fa; --fg: #1b1e23; --muted: #5a6270; --rule: #cfd4da;
+    --accent: #c96f1f; --accent-soft: #f4e3d1;
+    --display: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+    --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration-color: var(--accent); text-underline-offset: 2px; }
+  .wrap { max-width: 900px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); padding-block: 28px 72px; }
+  .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 20px; padding-bottom: 18px; border-bottom: 1px solid var(--rule); margin-bottom: 28px; }
+  .logo { font-family: var(--display); font-size: 24px; text-decoration: none; }
+  .btn { display: inline-block; font-family: var(--mono); font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; padding: 12px 18px; border: 1px solid var(--fg); color: var(--fg); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn:hover { background: var(--fg); color: #fff; }
+  .btn.primary:hover { background: #a85a16; border-color: #a85a16; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  h1 { font-family: var(--display); font-weight: 500; font-size: clamp(44px, 9vw, 92px); line-height: .98; margin: 8px 0 14px; letter-spacing: -.01em; }
+  .tag { font-family: var(--display); font-size: clamp(20px, 2.8vw, 27px); line-height: 1.25; max-width: 30ch; margin: 0 0 20px; }
+  .tag em { color: var(--accent); }
+  .handles { display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--mono); font-size: 12.5px; color: var(--muted); margin-bottom: 28px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; border-top: 1px solid var(--fg); border-bottom: 1px solid var(--rule); padding: 18px 0; margin-bottom: 36px; }
+  .stat .n { font-family: var(--display); font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  h2 { font-family: var(--display); font-weight: 500; font-size: 28px; line-height: 1.1; margin: 0 0 10px; }
+  section { margin-bottom: 40px; }
+  p { margin: 0 0 12px; max-width: 66ch; }
+  .lede { color: var(--muted); margin-bottom: 16px; }
+  .pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .pillar { background: var(--surface); border: 1px solid var(--rule); padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .pillar h3 { font-family: var(--display); font-weight: 500; font-size: 21px; line-height: 1.15; margin: 0; }
+  .pillar p { font-size: 14px; margin: 0; }
+  .pillar .proof { font-family: var(--mono); font-size: 12px; color: var(--accent); margin-top: auto; padding-top: 6px; }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .box { border: 1px solid var(--rule); padding: 14px 16px; }
+  .box h4 { margin: 0 0 8px; font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  ul { padding-left: 18px; margin: 0; }
+  li { margin-bottom: 5px; font-size: 15px; }
+  li::marker { color: var(--accent); }
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+  th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid var(--rule); }
+  th { font-family: var(--mono); font-weight: 500; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .contact { border-top: 1px solid var(--fg); padding-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .contact .k { font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .fine { font-size: 13px; color: var(--muted); }
+  @media print {
+    @page { margin: 14mm; }
+    body { background: #fff; font-size: 12.5px; }
+    .wrap { max-width: none; padding: 0 2px 0 0; }
+    .topbar .btn, .noprint { display: none !important; }
+    .topbar { border: 0; margin-bottom: 10px; padding: 0; }
+    h1 { font-size: 54px; }
+    section { margin-bottom: 20px; }
+    h2 { break-after: avoid; }
+    .pillars, .two, .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); break-inside: avoid; }
+    .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .pillar, .box, tr { break-inside: avoid; background: #fff; }
+    .stat .n { font-size: 30px; }
+    .contact { break-inside: avoid; }
+    a { text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="logo" href="/">Zizi Donna</a>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a class="btn primary" href="/media-kit/zizi-donna-media-kit.pdf" download>Download PDF</a>
+      <a class="btn" href="mailto:collab@zizidonna.com">collab@zizidonna.com</a>
+    </div>
+  </div>
+
+  <div class="eyebrow">Media kit · October 2026</div>
+  <h1>Zizi Donna</h1>
+  <p class="tag">Style for strong features and real age. Natural fibers, no filters, no fillers. <em>Drives a Dodge Challenger.</em></p>
+  <div class="handles">
+    <span>instagram.com/zizidonna</span><span>tiktok.com/@zizidonna</span><span>youtube.com/@zizidonna</span><span>pinterest.com/zizidonna</span><span>Bellevue, Washington</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n">3.0M</div><div class="l">Instagram views, last 90 days · 1.7M unique viewers</div></div>
+    <div class="stat"><div class="n">50.1K</div><div class="l">Instagram followers · 93% women</div></div>
+    <div class="stat"><div class="n">91K</div><div class="l">TikTok followers · 2.2M likes</div></div>
+    <div class="stat"><div class="n">32.2K</div><div class="l">YouTube subscribers · 104 videos</div></div>
+  </div>
+
+  <section>
+    <h2>Who she is</h2>
+    <p>Zizi Donna is a style creator in her 40s who teaches women to dress for the features they have: a strong nose, gray hair, hip dips, a face that looks like their mother's. She argues for natural fibers over synthetics, for keeping clothes a decade, and for an adult relationship with your own appearance. Her videos end with “prove me wrong,” and her audience, heavy with artists, designers and other creators, takes her up on it in the comments.</p>
+    <p>The throughline is strength. Her biggest Reels of the last quarter were about training in your 40s (“Prime in your 20s is a joke. Build strong and grounded in your 40s”: 693K views, 42.9K interactions) and about who gets to look strong (1.2M views). Ninety-six percent of her Instagram views come from people who do not follow her yet; her reach is discovery, not a fan base.</p>
+    <p>She also drives a Dodge Challenger, and the lane covers muscle and sports cars of any make, manual transmissions included. Her car Reels pull Challenger, Camaro and Mustang owners and car pages into a style audience, and a woman talking about muscle cars with taste rather than horsepower is almost alone in it.</p>
+  </section>
+
+  <section>
+    <h2>Four content pillars</h2>
+    <div class="pillars">
+      <div class="pillar">
+        <h3>Strong features, styled</h3>
+        <p>Face shape, body proportions, and the earring that balances a strong nose. Diagnostic, specific, repeatable.</p>
+        <div class="proof">88K likes · face-feature styling, TikTok</div>
+      </div>
+      <div class="pillar">
+        <h3>Strong at 40, gray on purpose</h3>
+        <p>Training, aging and visibility without reversal. No fillers, no coverage, no “younger.” Includes the mother-and-daughter pieces with her teen, which outperform almost everything else.</p>
+        <div class="proof">693K views · 42.9K interactions · Instagram, August</div>
+      </div>
+      <div class="pillar">
+        <h3>Natural fibers, kept for years</h3>
+        <p>Fabric, fit, tailoring and care. Clear the synthetics, buy less, keep longer. Secondhand without apology.</p>
+        <div class="proof">299K views · the back-vent stitch, YouTube Shorts</div>
+      </div>
+      <div class="pillar">
+        <h3>Women and muscle cars</h3>
+        <p>“Romanticizing muscle cars until girls stop thinking they are not for them.” Her Challenger, the driving wardrobe, car care from a woman's point of view. Any muscle or sports car, manual included. Ownership and taste, not speed.</p>
+        <div class="proof">11.5K likes in April · 18K viewers in September · Instagram</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Audience</h2>
+    <div class="two">
+      <div class="box">
+        <h4>Known from the content and comments</h4>
+        <ul>
+          <li>Women 25 to 44, deciding how they will age, who want to look like themselves, not younger.</li>
+          <li>A high share of artists, designers and other creators; comment threads read like a critique session.</li>
+          <li>Buyers of fewer, better things: natural fibers, independent jewelry, resale.</li>
+          <li>US-based, Pacific Northwest home base, with an Armenian and immigrant following she speaks to directly.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h4>From platform analytics</h4>
+        <ul>
+          <li>Instagram, last 90 days: 3.02M views, 1.71M unique viewers, 152K interactions, 103K accounts engaged, 30K profile visits.</li>
+          <li>Instagram, last 30 days: 1.68M views, 915K viewers, 49K interactions. 96% of views from non-followers.</li>
+          <li>Most active: Monday mornings, 6am to noon Pacific.</li>
+          <li>Followers: 93% women. Age 25–34 45% · 35–44 32% · 45–54 10% · 18–24 7%.</li>
+          <li>Top countries: United States 25% · India 9% · United Kingdom 7% · Germany 4% · Canada 4%. English is the first language of two thirds.</li>
+          <li>Follower growth comes from the strength pieces: one Reel added 1,600 followers in September.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Work that travelled</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Piece</th><th>Platform</th><th class="num">Result</th></tr></thead>
+        <tbody>
+          <tr><td>Gym girls get the same vascularity; apparently it only looks hot on men</td><td>Instagram Reel</td><td class="num">1.2M views</td></tr>
+          <tr><td>Prime in your 20s is a joke. Build strong and grounded in your 40s</td><td>Instagram Reel</td><td class="num">693K views · 42.9K interactions</td></tr>
+          <tr><td>Showing my teen that good taste doesn't come from Pinterest</td><td>Instagram Reel</td><td class="num">52K views</td></tr>
+          <tr><td>Remove the factory stitch on the back vent before wearing</td><td>YouTube Shorts</td><td class="num">299K views</td></tr>
+          <tr><td>Soft vs sharp: dressing round-face features</td><td>TikTok</td><td class="num">88K likes</td></tr>
+          <tr><td>Some days you're not in the mood for your feature; use this</td><td>YouTube Shorts</td><td class="num">64K views</td></tr>
+          <tr><td>Do you think they'd be satisfied with the result?</td><td>YouTube Shorts</td><td class="num">54K views</td></tr>
+          <tr><td>My hip dips are what make me a woman</td><td>YouTube Shorts</td><td class="num">43K views</td></tr>
+          <tr><td>Earring size and how facial features read</td><td>TikTok</td><td class="num">33.9K likes · 473 comments</td></tr>
+          <tr><td>God forbid a woman has good taste (the Challenger)</td><td>Instagram Reel</td><td class="num">11.5K likes</td></tr>
+          <tr><td>Romanticizing muscle cars until girls stop thinking they are not for them</td><td>Instagram Reel</td><td class="num">4.2K likes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Working together</h2>
+    <p class="lede">One shoot, several edits, her script. Brands get two rounds of factual corrections. Disclosure is in the first line and spoken on camera, every time.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Format</th><th>What you get</th></tr></thead>
+        <tbody>
+          <tr><td>Cross-platform bundle</td><td>Instagram Reel with three Stories frames, TikTok video (60s+), YouTube Short. The default.</td></tr>
+          <tr><td>Long-form integration</td><td>60–90 seconds inside a YouTube video that keeps earning search traffic for years.</td></tr>
+          <tr><td>Dedicated video</td><td>A full Reel series or TikTok on one product, for partners that pass the fit test comfortably.</td></tr>
+          <tr><td>Automotive series</td><td>Driving wardrobe, car care, the road to a car show. Long-form first, cut down for Shorts and TikTok.</td></tr>
+          <tr><td>Newsletter placement</td><td>One sponsored section in the weekly letter, once the list passes 3,000 readers.</td></tr>
+          <tr><td>Add-ons</td><td>Organic usage rights, paid usage and whitelisting, category exclusivity, each priced per 30 days.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine">Bundles start at $1,800. Full rate card on request.</p>
+  </section>
+
+  <section>
+    <h2>Fit</h2>
+    <div class="two">
+      <div class="box">
+        <h4>She says yes to</h4>
+        <ul>
+          <li>Natural and recycled fibers with published sourcing.</li>
+          <li>Things built to be kept: repairable, resold, serviced.</li>
+          <li>Brands that photograph 40+ bodies and strong features.</li>
+          <li>Silver-hair care, skin care at every age, makeup that looks like skin.</li>
+          <li>Cars, car care and driving gear from brands that talk to women as owners.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h4>She does not take</h4>
+        <ul>
+          <li>Fast fashion and ultra-cheap synthetics.</li>
+          <li>Fillers, injectables, surgery, “anti-aging,” filters.</li>
+          <li>Gray coverage, weight-loss programs, detox, fragranced products.</li>
+          <li>Car-giveaway sweepstakes, predatory financing, cheap parts.</li>
+          <li>Any brief that needs speed or stunts on a public road.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Partners so far</h2>
+    <p>FRANKIE4 Footwear · Ogee · COS · Act+Acre · independent jewelry designers featured on request.</p>
+  </section>
+
+  <div class="contact">
+    <div><div class="k">Management</div><div>Franz Bdoyan<br><a href="mailto:collab@zizidonna.com">collab@zizidonna.com</a></div></div>
+    <div><div class="k">Creator</div><div>Zizi Donna<br><a href="https://zizidonna.com">zizidonna.com</a></div></div>
+    <div><div class="k">Updated</div><div>24 October 2026</div></div>
+  </div>
+</div>
+</body>
+</html>

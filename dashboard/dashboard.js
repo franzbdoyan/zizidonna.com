@@ -1,4 +1,6 @@
 // zizidonna.com dashboard: the manager and Zizi work through the brand list together.
+// Two views over the same `brands` documents: Brands (Zizi's 0–5 question) and
+// Pipeline (outreach status and contacts; manager edits, Zizi watches).
 //
 // Static page, no build step. Firebase (Google sign-in + Firestore) is loaded from
 // gstatic only when needed, so ?mock=1 runs without any Firebase project at all.
@@ -11,10 +13,31 @@ const MANAGER = "franzbdoyan@gmail.com";
 const ZIZI = "zizidonnastyle@gmail.com";
 const TEAM = [MANAGER, ZIZI];
 
-// Tracker columns stored on each brand document (the rest of the tracker stays private on disk).
+// Brand description columns: refreshed from the tracker on every import.
 const FIELDS = ["rank", "brand", "category", "score", "verdict", "route_in", "template", "url", "notes"];
-const EXPORT_FIELDS = [...FIELDS, "zizi_w", "zizi_owns", "zizi_note", "zizi_answered_at", "manager_note", "updated_at", "updated_by"];
+// Pipeline fields: all strings; dates are yyyy-mm-dd or empty. An import only fills them where empty.
+const CRM_FIELDS = ["status", "contact_name", "contact_title", "contact_email", "date_sent", "follow_up_due", "last_touch", "fee_quoted", "next_action"];
+const DATE_FIELDS = ["date_sent", "follow_up_due", "last_touch"];
+const EXPORT_FIELDS = [...FIELDS, ...CRM_FIELDS, "zizi_w", "zizi_owns", "zizi_note", "zizi_answered_at", "manager_note", "updated_at", "updated_by"];
 const SCALE_LABELS = { 0: "Never", 3: "Maybe", 5: "Already do" };
+const STATUSES = [
+  ["new", "New"],
+  ["researching", "Researching"],
+  ["pitched", "Pitched"],
+  ["followed_up", "Followed up"],
+  ["in_talks", "In talks"],
+  ["contract", "Contract"],
+  ["live", "Live"],
+  ["hold", "Hold"],
+  ["declined", "Declined"],
+  ["dropped", "Dropped"],
+];
+const STATUS_LABEL = Object.fromEntries(STATUSES);
+const STATUS_ORDER = Object.fromEntries(STATUSES.map(([k], i) => [k, i]));
+const CLOSED = new Set(["declined", "dropped"]); // hidden under "All" unless "Show all" is on
+const DONE = new Set(["live", "declined", "dropped"]); // a past follow-up date is not overdue for these
+// The tracker's final_status column (Zizi's verdict) -> pipeline status, used only when `status` is empty.
+const FINAL_STATUS = { go: "new", "hold (zizi 3)": "hold", "drop (zizi)": "dropped", "drop (zizi note)": "dropped", "explain to zizi": "new", "no answer": "new" };
 const NOW = Symbol("now"); // replaced by the backend with a server (or local) timestamp
 
 const params = new URLSearchParams(location.search);
@@ -26,6 +49,7 @@ const $ = (id) => document.getElementById(id);
 const state = {
   email: "",
   role: null, // "manager" | "zizi"
+  view: "brands", // "brands" | "pipeline"
   rows: new Map(), // doc id ("001") -> data
   loaded: false,
   category: "All",
@@ -33,7 +57,16 @@ const state = {
   query: "",
   keep: new Set(), // answered during this visit; stay visible under "Unanswered only" until a filter changes
 };
-const cards = new Map(); // doc id -> card refs
+const pipe = {
+  status: "all",
+  showAll: false,
+  query: "",
+  sort: "rank", // "rank" | "due" | "status"
+  order: [], // current row order; recomputed only when filters, sort or the set of brands change
+  keep: new Set(), // edited during this visit; stay visible until a filter changes
+};
+const cards = new Map(); // doc id -> Brands card refs
+const prows = new Map(); // doc id -> Pipeline row refs
 const failed = new Map(); // doc id -> patch that did not save (resent with the next save or Retry)
 let inflight = 0;
 let backend = null; // { save(id, patch), importDocs(docs), signOut() }
@@ -72,6 +105,10 @@ const whoIs = (email) => {
   const e = String(email || "").toLowerCase();
   return e === MANAGER ? "Manager" : e === ZIZI ? "Zizi" : e;
 };
+const statusOf = (d) => (STATUS_LABEL[d.status] ? d.status : "new");
+const isBlank = (v) => v === undefined || v === null || v === "";
+const isoDay = (t = new Date()) => `${t.getFullYear()}-${pad2(t.getMonth() + 1)}-${pad2(t.getDate())}`;
+const isOverdue = (d) => !!d.follow_up_due && d.follow_up_due < isoDay() && !DONE.has(statusOf(d));
 
 function safeUrl(u) {
   const s = String(u || "").trim();
@@ -93,6 +130,14 @@ function toDate(v) {
 function fmtDay(v) {
   const d = toDate(v);
   return d ? d.toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "";
+}
+
+// "2026-10-30" -> "30 Oct" (with the year when it isn't this year).
+function fmtIso(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || "");
+  if (!m) return s || "";
+  const d = new Date(+m[1], +m[2] - 1, +m[3]);
+  return d.toLocaleDateString(undefined, { day: "numeric", month: "short", ...(d.getFullYear() !== new Date().getFullYear() ? { year: "numeric" } : {}) });
 }
 
 // ---------- problems ----------
@@ -128,25 +173,33 @@ function enterBoard(email) {
   state.category = "All";
   state.query = "";
   state.keep.clear();
+  Object.assign(pipe, { status: "all", showAll: false, query: "", sort: "rank" });
+  pipe.keep.clear();
   $("who-email").textContent = email;
   $("who-role").textContent = state.role === "manager" ? "Manager" : "Zizi";
   $("manager-tools").hidden = state.role !== "manager";
   $("unanswered-only").checked = state.unansweredOnly;
   $("search").value = "";
+  $("p-search").value = "";
+  $("p-showall").checked = false;
+  $("p-readonly").hidden = state.role === "manager";
   note($("tools-msg"), "");
   note($("board-msg"), "");
   clearCards();
   show("board");
-  render();
+  setView(location.hash === "#pipeline" ? "pipeline" : "brands");
 }
 
 function clearCards() {
   cards.clear();
+  prows.clear();
   failed.clear();
   chipSig = "";
   orderSig = "";
+  pipe.order = [];
   $("brand-list").replaceChildren();
   $("chips").replaceChildren();
+  $("p-list").replaceChildren();
 }
 
 function leaveBoard() {
@@ -155,6 +208,25 @@ function leaveBoard() {
   state.email = "";
   state.role = null;
   clearCards();
+}
+
+function setView(view) {
+  state.view = view;
+  for (const b of document.querySelectorAll("[data-view]")) b.setAttribute("aria-pressed", String(b.dataset.view === view));
+  $("pane-brands").hidden = view !== "brands";
+  $("pane-pipeline").hidden = view !== "pipeline";
+  $("view-board").classList.toggle("is-pipeline", view === "pipeline");
+  const url = new URL(location.href);
+  url.hash = view === "pipeline" ? "pipeline" : "";
+  history.replaceState(null, "", url);
+  render();
+  if (view === "pipeline") renderPipeline(true);
+}
+
+// Re-render after data changes (snapshots, saves, imports).
+function renderAll() {
+  render();
+  if (state.view === "pipeline") renderPipeline();
 }
 
 function sortedIds() {
@@ -232,22 +304,23 @@ function renderChips(ids) {
   for (const b of $("chips").children) b.setAttribute("aria-pressed", String(b.dataset.cat === state.category));
 }
 
+// The "nothing loaded yet" message both views share; null once there are rows.
+function noDataMessage(total) {
+  if (!state.loaded) return [h("p", { class: "fine", text: "Loading the list…" })];
+  if (total) return null;
+  return state.role === "manager"
+    ? [
+        h("p", {}, h("strong", { text: "No brands yet." })),
+        h("p", { text: "Tap Import tracker CSV and choose outreach-tracker.csv from your computer. The file stays on your machine; only the rows go into the private database." }),
+      ]
+    : [h("p", {}, h("strong", { text: "The list isn’t loaded yet." })), h("p", { text: "Ask your manager to import it, then reload this page." })];
+}
+
 function renderEmpty(total, shown) {
   const box = $("empty");
-  if (!state.loaded) {
-    box.replaceChildren(h("p", { class: "fine", text: "Loading the list…" }));
-    box.hidden = false;
-    return;
-  }
-  if (!total) {
-    box.replaceChildren(
-      ...(state.role === "manager"
-        ? [
-            h("p", {}, h("strong", { text: "No brands yet." })),
-            h("p", { text: "Tap Import tracker CSV and choose outreach-tracker.csv from your computer. The file stays on your machine; only the rows go into the private database." }),
-          ]
-        : [h("p", {}, h("strong", { text: "The list isn’t loaded yet." })), h("p", { text: "Ask your manager to import it, then reload this page." })]),
-    );
+  const none = noDataMessage(total);
+  if (none) {
+    box.replaceChildren(...none);
     box.hidden = false;
     return;
   }
@@ -272,7 +345,7 @@ function setFilter(change) {
   render();
 }
 
-// ---------- cards ----------
+// ---------- Brands cards ----------
 
 function buildCard(id) {
   const r = { id, sig: "" };
@@ -393,11 +466,236 @@ function onScore(id, i) {
   save(id, { zizi_w: v, zizi_answered_at: v === null ? null : NOW });
 }
 
+// ---------- Pipeline ----------
+
+// Row cells after rank, brand, category and Zizi's score: [field, label, input kind, class].
+const P_ROW = [
+  ["status", "Status", "select", "pc-status"],
+  ["contact_name", "Contact", "text", "pc-name"],
+  ["contact_email", "Email", "email", "pc-email"],
+  ["follow_up_due", "Follow-up", "date", "pc-due"],
+];
+// Expanded panel: context (read-only for everyone) and pipeline details (editable by the manager).
+const P_CONTEXT = [
+  ["route_in", "Route in"],
+  ["notes", "Notes"],
+  ["zizi_note", "Zizi’s note"],
+];
+const P_DETAIL = [
+  ["contact_title", "Contact title", "text"],
+  ["date_sent", "Date sent", "date"],
+  ["last_touch", "Last touch", "date"],
+  ["fee_quoted", "Fee quoted", "text"],
+  ["next_action", "Next action", "text"],
+  ["manager_note", "Manager note", "area"], // manager only, as in Brands
+];
+
+function setPipe(change) {
+  Object.assign(pipe, change);
+  if ("query" in change) $("p-search").value = change.query;
+  if ("showAll" in change) $("p-showall").checked = change.showAll;
+  pipe.keep.clear();
+  renderPipeline(true);
+}
+
+function sortPipeline(ids) {
+  const get = (id) => state.rows.get(id);
+  const by = {
+    rank: () => 0,
+    due: (a, b) => (get(a).follow_up_due || "9999").localeCompare(get(b).follow_up_due || "9999"),
+    status: (a, b) => STATUS_ORDER[statusOf(get(a))] - STATUS_ORDER[statusOf(get(b))],
+  }[pipe.sort];
+  return [...ids].sort((a, b) => by(a, b) || (Number(get(a).rank) || 0) - (Number(get(b).rank) || 0));
+}
+
+function pMatches(id, d, terms) {
+  if (pipe.keep.has(id)) return true;
+  const s = statusOf(d);
+  if (pipe.status === "all" ? !pipe.showAll && CLOSED.has(s) : s !== pipe.status) return false;
+  if (!terms.length) return true;
+  const hay = [d.brand, d.category, d.contact_name, d.contact_title, d.contact_email, d.route_in, d.notes, d.next_action, d.zizi_note, state.role === "manager" ? d.manager_note : ""]
+    .join(" ")
+    .toLowerCase();
+  return terms.every((t) => hay.includes(t));
+}
+
+function renderPipeline(reorder = false) {
+  if (!state.role) return;
+  const ids = sortedIds();
+  let changed = false;
+  for (const id of ids) {
+    if (!prows.has(id)) {
+      prows.set(id, buildPRow(id));
+      changed = true;
+    }
+    updatePRow(id, state.rows.get(id));
+  }
+  for (const id of [...prows.keys()]) {
+    if (!state.rows.has(id)) {
+      prows.get(id).el.remove();
+      prows.delete(id);
+      changed = true;
+    }
+  }
+  if (reorder || changed) {
+    pipe.order = sortPipeline(ids);
+    $("p-list").append(...pipe.order.map((id) => prows.get(id).el));
+  }
+
+  const counts = Object.fromEntries(STATUSES.map(([k]) => [k, 0]));
+  for (const id of ids) counts[statusOf(state.rows.get(id))]++;
+  counts.all = pipe.showAll ? ids.length : ids.length - counts.declined - counts.dropped;
+  for (const b of $("p-chips").children) {
+    b.setAttribute("aria-pressed", String(b.dataset.status === pipe.status));
+    b.lastChild.textContent = String(counts[b.dataset.status]);
+  }
+  for (const b of document.querySelectorAll("[data-sort]")) b.setAttribute("aria-pressed", String(b.dataset.sort === pipe.sort));
+
+  const terms = pipe.query.toLowerCase().split(/\s+/).filter(Boolean);
+  let shown = 0;
+  for (const id of pipe.order) {
+    const ok = pMatches(id, state.rows.get(id), terms);
+    prows.get(id).el.hidden = !ok;
+    if (ok) shown++;
+  }
+  $("p-count").textContent = ids.length ? `Showing ${shown} of ${ids.length}` : "";
+  $("p-head").hidden = !shown;
+
+  const box = $("p-empty");
+  const none = noDataMessage(ids.length);
+  if (none) box.replaceChildren(...none);
+  else if (!shown)
+    box.replaceChildren(
+      h("p", { text: "Nothing matches these filters." }),
+      h("p", {}, h("button", { type: "button", class: "btn small", onclick: () => setPipe({ status: "all", showAll: true, query: "" }) }, "Show everything")),
+    );
+  box.hidden = !none && !!shown;
+}
+
+// One editable control for the manager. Saves on blur, Enter or (select, date) change; Escape undoes.
+function pControl(r, key, kind) {
+  let el;
+  if (kind === "select") el = h("select", { class: "pin" }, STATUSES.map(([k, l]) => h("option", { value: k, text: l })));
+  else if (kind === "area") el = h("textarea", { class: "pin", rows: "2", placeholder: "—" });
+  else
+    el = h("input", {
+      class: "pin",
+      type: kind,
+      placeholder: kind === "date" ? null : "—",
+      autocomplete: "off",
+      enterkeyhint: "done",
+      autocapitalize: kind === "email" ? "off" : null,
+      spellcheck: kind === "email" ? "false" : null,
+    });
+  el.dataset.synced = el.value;
+  el.dataset.sent = el.value;
+  const commit = () => {
+    if (kind === "text" || kind === "email" || kind === "area") {
+      const t = el.value.trim();
+      if (t !== el.value) el.value = t;
+    }
+    if (el.value === el.dataset.sent) return;
+    el.dataset.sent = el.value;
+    pipe.keep.add(r.id);
+    persist(r, r.id, { [key]: el.value });
+  };
+  el._commit = commit;
+  el.addEventListener("change", commit);
+  el.addEventListener("blur", commit);
+  el.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      el.value = el.dataset.sent;
+      el.blur();
+    } else if (e.key === "Enter" && el.tagName === "INPUT") {
+      e.preventDefault();
+      el.blur();
+    }
+  });
+  if (kind === "date") el.addEventListener("input", () => el.classList.toggle("is-empty", !el.value));
+  r.fields[key] = el;
+  return el;
+}
+
+// A labelled cell: an editable control for the manager, plain text for Zizi.
+function pCell(r, key, label, kind, cls) {
+  if (state.role === "manager") return h("label", { class: `pc ${cls}` }, h("span", { class: "lab", text: label }), pControl(r, key, kind));
+  const v = h("span", { class: "pval" });
+  r.vals[key] = { el: v, kind };
+  return h("div", { class: `pc ${cls}` }, h("span", { class: "lab", text: label }), v);
+}
+
+function buildPRow(id) {
+  const r = { id, sig: "", fields: {}, vals: {}, ctx: {} };
+  r.tw = h("span", { class: "tw", "aria-hidden": "true", text: "+" });
+  r.rankText = h("span", {});
+  r.toggle = h("button", { type: "button", class: "pc-rank", "aria-expanded": "false", "aria-controls": `pd-${id}`, onclick: () => togglePRow(r) }, r.tw, r.rankText);
+  r.brand = h("div", { class: "pc-brand" });
+  r.cat = h("div", { class: "pc-cat" });
+  r.zizi = h("span", { class: "pz" });
+  const zizi = h("div", { class: "pc pc-zizi" }, h("span", { class: "lab", text: "Zizi" }), r.zizi);
+  const cells = P_ROW.map(([key, label, kind, cls]) => pCell(r, key, label, kind, cls));
+  r.dueCell = cells[P_ROW.findIndex(([key]) => key === "follow_up_due")];
+  const main = h("div", { class: "pmain" }, r.toggle, r.brand, r.cat, zizi, ...cells);
+  main.addEventListener("click", (e) => {
+    if (!e.target.closest("a, button, input, select, textarea, label")) togglePRow(r);
+  });
+
+  const context = P_CONTEXT.map(([key, label]) => {
+    r.ctx[key] = h("p", { class: "pd-text" });
+    return h("div", { class: "pd-item" }, h("span", { class: "lab", text: label }), r.ctx[key]);
+  });
+  const details = P_DETAIL.filter(([key]) => state.role === "manager" || key !== "manager_note").map(([key, label, kind]) => pCell(r, key, label, kind, "pd-item"));
+  r.lastEdit = h("p", { class: "pd-meta" });
+  r.detail = h("div", { class: "pdetail", id: `pd-${id}`, hidden: true }, h("div", { class: "pd-col" }, context), h("div", { class: "pd-col" }, details), r.lastEdit);
+
+  r.status = h("span", { class: "save pc-save", "aria-live": "polite" });
+  r.el = h("li", { class: "prow", id: `p-${id}` }, main, r.detail, r.status);
+  return r;
+}
+
+function togglePRow(r) {
+  const open = r.detail.hidden;
+  r.detail.hidden = !open;
+  r.toggle.setAttribute("aria-expanded", String(open));
+  r.tw.textContent = open ? "−" : "+";
+  r.el.classList.toggle("open", open);
+}
+
+function updatePRow(id, d) {
+  const r = prows.get(id);
+  const sig = JSON.stringify([d.rank, d.brand, d.url, d.category]);
+  if (sig !== r.sig) {
+    r.sig = sig;
+    const name = d.brand || "(no name)";
+    const url = safeUrl(d.url);
+    r.brand.replaceChildren(
+      url ? h("a", { href: url, target: "_blank", rel: "noopener" }, name, h("span", { class: "ext", "aria-hidden": "true", text: "↗" }), h("span", { class: "sr-only", text: " (opens in a new tab)" })) : name,
+    );
+    r.rankText.textContent = pad2(d.rank);
+    r.toggle.setAttribute("aria-label", `Details for ${name}`);
+    r.cat.textContent = d.category || "";
+  }
+  const st = statusOf(d);
+  r.zizi.textContent = isAnswered(d) ? String(d.zizi_w) : "—";
+  for (const [key, el] of Object.entries(r.fields)) {
+    syncField(el, key === "status" ? st : d[key]);
+    if (el.type === "date") el.classList.toggle("is-empty", !el.value);
+  }
+  for (const [key, { el, kind }] of Object.entries(r.vals)) {
+    const v = key === "status" ? STATUS_LABEL[st] : kind === "date" ? fmtIso(d[key]) : d[key];
+    el.textContent = v || "—";
+  }
+  for (const [key, el] of Object.entries(r.ctx)) el.textContent = d[key] || "—";
+  r.dueCell.classList.toggle("overdue", isOverdue(d));
+  r.el.classList.toggle("closed", CLOSED.has(st));
+  r.lastEdit.textContent = d.updated_by ? `Last edit: ${whoIs(d.updated_by)}${d.updated_at ? ` · ${fmtDay(d.updated_at)}` : ""}` : "";
+}
+
 // ---------- saving ----------
 
 function setStatus(r, kind, retry) {
   clearTimeout(r.statusTimer);
-  r.status.className = "save";
+  r.status.className = r.status.className.replace(/\s*\b(ok|err)\b/g, "");
   if (kind === "saving") r.status.textContent = "Saving…";
   else if (kind === "slow") r.status.textContent = "Still saving… check the connection";
   else if (kind === "ok") {
@@ -410,8 +708,20 @@ function setStatus(r, kind, retry) {
   } else r.status.textContent = "";
 }
 
-async function save(id, patch) {
-  const r = cards.get(id);
+// After a save, mark every control that shows the saved value as in sync (Brands and Pipeline).
+function markSynced(id, saved) {
+  const c = cards.get(id);
+  const p = prows.get(id);
+  const els = [...(c ? [["zizi_note", c.note], ["manager_note", c.mnote]] : []), ...(p ? Object.entries(p.fields) : [])];
+  for (const [k, el] of els) if (el && k in saved && el.value === String(saved[k] ?? "")) el.dataset.synced = el.value;
+}
+
+// Brands cards report save state on their own card; Pipeline rows on their row.
+function save(id, patch) {
+  return persist(cards.get(id), id, patch);
+}
+
+async function persist(r, id, patch) {
   if (!r || !backend) return;
   const merged = { ...(failed.get(id) || {}), ...patch };
   failed.delete(id);
@@ -421,14 +731,13 @@ async function save(id, patch) {
   inflight++;
   try {
     await backend.save(id, merged);
-    if ("zizi_note" in merged && r.note) r.note.dataset.synced = merged.zizi_note;
-    if ("manager_note" in merged && r.mnote) r.mnote.dataset.synced = merged.manager_note;
-    if (failed.has(id)) setStatus(r, "err", () => save(id, {}));
+    markSynced(id, merged);
+    if (failed.has(id)) setStatus(r, "err", () => persist(r, id, {}));
     else if (r.seq === seq) setStatus(r, "ok");
   } catch (err) {
     console.error("Save failed", id, err);
     failed.set(id, { ...merged, ...(failed.get(id) || {}) });
-    setStatus(r, "err", () => save(id, {}));
+    setStatus(r, "err", () => persist(r, id, {}));
   } finally {
     clearTimeout(slow);
     inflight--;
@@ -480,35 +789,125 @@ function parseCSV(text) {
   return rows.filter((r) => r.some((f) => f.trim() !== ""));
 }
 
-// Tracker CSV -> { docs: [{ id, data }], errors: [] }. Only columns present in the file are written,
-// so an older file without `url` leaves existing URLs alone. zizi_* and manager_note are never touched.
+// "followed_up", "Followed up", "in-talks" -> status key; null if unknown.
+function parseStatus(v) {
+  const s = v.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  return STATUS_LABEL[s] ? s : null;
+}
+
+function finalToStatus(v) {
+  const s = v.trim().toLowerCase();
+  if (s in FINAL_STATUS) return FINAL_STATUS[s];
+  if (s.startsWith("drop")) return "dropped";
+  if (s.startsWith("hold")) return "hold";
+  return "new";
+}
+
+// yyyy-mm-dd, yyyy/m/d, an ISO timestamp, or US m/d/yy(yy) -> yyyy-mm-dd; null if not a date.
+function parseDay(v) {
+  let y, m, d;
+  let x = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T ].*)?$/.exec(v);
+  if (x) [, y, m, d] = x;
+  else if ((x = /^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/.exec(v))) [, m, d, y] = x;
+  else return null;
+  if (y.length === 2) y = `20${y}`;
+  const t = new Date(+y, +m - 1, +d);
+  return t.getFullYear() === +y && t.getMonth() === +m - 1 && t.getDate() === +d ? isoDay(t) : null;
+}
+
+function parseBool(v) {
+  const s = v.trim().toLowerCase();
+  if (["yes", "y", "true", "1", "x"].includes(s)) return true;
+  if (["no", "n", "false", "0"].includes(s)) return false;
+  return null;
+}
+
+// Tracker or dashboard-export CSV -> { docs: [{ id, base, fill }], errors: [] }.
+// `base` is the brand description (written every import, only for columns present in the file);
+// `fill` holds pipeline fields, notes and Zizi's answers, which an import only writes where empty.
 function trackerToDocs(text) {
   const rows = parseCSV(text);
   const errors = [];
   if (!rows.length) return { docs: [], errors: ["The file is empty."] };
   const header = rows[0].map((s) => s.trim().toLowerCase());
-  const col = Object.fromEntries(FIELDS.map((f) => [f, header.indexOf(f)]));
-  if (col.rank < 0 || col.brand < 0) return { docs: [], errors: ["The header row needs at least “rank” and “brand” columns."] };
+  if (!header.includes("rank") || !header.includes("brand")) return { docs: [], errors: ["The header row needs at least “rank” and “brand” columns."] };
   const seen = new Set();
   const docs = [];
   rows.slice(1).forEach((cells, n) => {
     const line = n + 2;
-    const rank = Number(String(cells[col.rank] ?? "").trim());
-    if (!Number.isInteger(rank) || rank < 1 || rank > 999) return errors.push(`Line ${line}: rank “${cells[col.rank] ?? ""}” is not a whole number from 1 to 999.`);
+    const cell = (name) => {
+      const i = header.indexOf(name);
+      return i < 0 ? undefined : String(cells[i] ?? "").trim();
+    };
+    const bad = (what, v, want) => errors.push(`Line ${line}: ${what} “${v}” ${want}.`);
+    const rank = Number(cell("rank"));
+    if (!Number.isInteger(rank) || rank < 1 || rank > 999) return bad("rank", cell("rank"), "is not a whole number from 1 to 999");
     const id = docId(rank);
     if (seen.has(id)) return errors.push(`Line ${line}: rank ${rank} appears twice.`);
     seen.add(id);
-    const data = { rank };
+
+    const base = { rank };
     for (const f of FIELDS) {
-      if (f === "rank" || col[f] < 0) continue;
-      const v = String(cells[col[f]] ?? "").trim();
-      if (f === "score") data.score = /^\d+(\.\d+)?$/.test(v) ? Number(v) : v;
-      else if (f === "url") data.url = safeUrl(v);
-      else data[f] = v;
+      const v = cell(f);
+      if (f === "rank" || v === undefined) continue;
+      if (f === "score") base.score = /^\d+(\.\d+)?$/.test(v) ? Number(v) : v;
+      else if (f === "url") base.url = safeUrl(v);
+      else base[f] = v;
     }
-    docs.push({ id, data });
+
+    const fill = {};
+    for (const f of ["contact_name", "contact_title", "contact_email", "fee_quoted", "next_action", "manager_note", "zizi_note"]) {
+      const v = cell(f);
+      if (v) fill[f] = v;
+    }
+    for (const f of DATE_FIELDS) {
+      const v = cell(f);
+      if (!v) continue;
+      const day = parseDay(v);
+      if (day) fill[f] = day;
+      else bad(f, v, "isn’t a date (use yyyy-mm-dd)");
+    }
+    const st = cell("status");
+    const fin = cell("final_status");
+    if (st) {
+      const s = parseStatus(st);
+      if (s) fill.status = s;
+      else bad("status", st, `isn’t one of: ${STATUSES.map(([k]) => k).join(", ")}`);
+    } else if (fin) fill.status = finalToStatus(fin);
+    const w = cell("zizi_w") || cell("zizi_score");
+    if (w) {
+      if (/^[0-5]$/.test(w)) fill.zizi_w = Number(w);
+      else bad("Zizi’s answer", w, "isn’t a whole number from 0 to 5");
+    }
+    const owns = cell("zizi_owns");
+    if (owns) {
+      const b = parseBool(owns);
+      if (b === null) bad("zizi_owns", owns, "isn’t yes or no");
+      else fill.zizi_owns = b;
+    }
+    const at = cell("zizi_answered_at");
+    if (at && !Number.isNaN(Date.parse(at))) fill.zizi_answered_at = new Date(at);
+    docs.push({ id, base, fill });
   });
   return { docs, errors };
+}
+
+// Against what is already in the database: description always, everything else only where empty.
+function planImport(docs) {
+  let filled = 0;
+  const writes = docs.map(({ id, base, fill }) => {
+    const cur = state.rows.get(id) || {};
+    const data = { ...base };
+    for (const [k, v] of Object.entries(fill)) {
+      if (k === "zizi_answered_at" || !isBlank(cur[k])) continue;
+      data[k] = v;
+      filled++;
+    }
+    if ("zizi_w" in data && isBlank(cur.zizi_answered_at)) data.zizi_answered_at = fill.zizi_answered_at || NOW;
+    if (isBlank(cur.status) && !("status" in data)) data.status = "new";
+    return { id, data };
+  });
+  return { writes, filled };
 }
 
 function toCSV(ids) {
@@ -520,7 +919,8 @@ function toCSV(ids) {
   };
   const lines = [EXPORT_FIELDS.join(",")];
   for (const id of ids) {
-    const d = state.rows.get(id);
+    const d = { ...state.rows.get(id) };
+    d.status = statusOf(d);
     lines.push(EXPORT_FIELDS.map((f) => cell(d[f])).join(","));
   }
   return lines.join("\r\n") + "\r\n";
@@ -541,6 +941,7 @@ async function onImportFile(e) {
   input.value = "";
   if (!file || !backend) return;
   const msg = $("tools-msg");
+  if (!state.loaded) return note(msg, "The list is still loading. Try the import again in a moment.");
   let parsed;
   try {
     parsed = trackerToDocs(await file.text());
@@ -552,14 +953,15 @@ async function onImportFile(e) {
   if (errors.length) return note(msg, `Not imported. ${errors.slice(0, 3).join(" ")}${errors.length > 3 ? ` (+${errors.length - 3} more)` : ""}`);
   if (!docs.length) return note(msg, "No rows found under the header.");
   const fresh = docs.filter((d) => !state.rows.has(d.id)).length;
+  const { writes, filled } = planImport(docs);
   const ok = confirm(
-    `Import ${docs.length} brands from ${file.name}?\n\n${docs.length - fresh} existing rows will be updated and ${fresh} added. Zizi's answers and manager notes are kept.${MOCK ? "\n\nMock mode: this only changes this page, nothing is saved." : ""}`,
+    `Import ${docs.length} brands from ${file.name}?\n\n${fresh} new, ${docs.length - fresh} already here. Brand details are refreshed from the file. Status, contacts, dates, notes and Zizi's answers are only filled where they are empty (${filled} empty fields); nothing already entered is overwritten.${MOCK ? "\n\nMock mode: this only changes this page, nothing is saved." : ""}`,
   );
   if (!ok) return note(msg, "Import cancelled.");
   note(msg, "Importing…");
   try {
-    await backend.importDocs(docs);
-    note(msg, `Imported ${docs.length} brands (${fresh} new).${MOCK ? " Mock mode: in this page only, nothing saved." : ""}`);
+    await backend.importDocs(writes);
+    note(msg, `Imported ${docs.length} brands (${fresh} new, ${filled} empty fields filled).${MOCK ? " Mock mode: in this page only, nothing saved." : ""}`);
   } catch (err) {
     console.error(err);
     note(msg, `Import failed: ${err.code || err.message}. Nothing was half-written in a batch that failed; try again.`);
@@ -569,21 +971,40 @@ async function onImportFile(e) {
 function onExport() {
   const ids = sortedIds();
   if (!ids.length) return note($("tools-msg"), "Nothing to export yet.");
-  const t = new Date();
-  const day = `${t.getFullYear()}-${pad2(t.getMonth() + 1)}-${pad2(t.getDate())}`;
-  download(`zizi-brands-${day}.csv`, toCSV(ids));
-  note($("tools-msg"), `Exported ${ids.length} brands with Zizi’s answers.`);
+  download(`zizi-brands-${isoDay()}.csv`, toCSV(ids));
+  note($("tools-msg"), `Exported ${ids.length} brands with every field, including Zizi’s answers and the pipeline.`);
 }
 
 // ---------- wiring shared by both modes ----------
 
 function wireBoard() {
+  for (const b of document.querySelectorAll("[data-view]"))
+    b.addEventListener("click", () => {
+      document.activeElement?._commit?.();
+      setView(b.dataset.view);
+    });
+  addEventListener("hashchange", () => state.role && setView(location.hash === "#pipeline" ? "pipeline" : "brands"));
+
   $("unanswered-only").addEventListener("change", (e) => setFilter({ unansweredOnly: e.target.checked }));
   let t = 0;
   $("search").addEventListener("input", (e) => {
     clearTimeout(t);
     t = setTimeout(() => setFilter({ query: e.target.value.trim() }), 120);
   });
+
+  $("p-chips").replaceChildren(
+    ...[["all", "All"], ...STATUSES].map(([k, label]) =>
+      h("button", { type: "button", class: "p-chip", "data-status": k, "aria-pressed": "false", onclick: () => setPipe({ status: k }) }, label, h("span", { class: "n" })),
+    ),
+  );
+  $("p-showall").addEventListener("change", (e) => setPipe({ showAll: e.target.checked }));
+  let pt = 0;
+  $("p-search").addEventListener("input", (e) => {
+    clearTimeout(pt);
+    pt = setTimeout(() => setPipe({ query: e.target.value.trim() }), 120);
+  });
+  for (const b of document.querySelectorAll("[data-sort]")) b.addEventListener("click", () => setPipe({ sort: b.dataset.sort }));
+
   $("import-file").addEventListener("change", onImportFile);
   $("export-btn").addEventListener("click", onExport);
   $("signout-btn").addEventListener("click", () => {
@@ -622,17 +1043,14 @@ async function startFirebase() {
   provider.setCustomParameters({ prompt: "select_account" });
   let unsub = null;
 
-  const stamp = (v) => (v === NOW ? S.serverTimestamp() : v);
+  const stamp = (data) => Object.fromEntries(Object.entries(data).map(([k, v]) => [k, v === NOW ? S.serverTimestamp() : v]));
   backend = {
-    save: (id, patch) => {
-      const data = Object.fromEntries(Object.entries(patch).map(([k, v]) => [k, stamp(v)]));
-      return S.updateDoc(S.doc(db, "brands", id), { ...data, updated_at: S.serverTimestamp(), updated_by: state.email });
-    },
+    save: (id, patch) => S.updateDoc(S.doc(db, "brands", id), { ...stamp(patch), updated_at: S.serverTimestamp(), updated_by: state.email }),
     importDocs: async (docs) => {
       for (let i = 0; i < docs.length; i += 400) {
         const batch = S.writeBatch(db);
         for (const { id, data } of docs.slice(i, i + 400))
-          batch.set(S.doc(db, "brands", id), { ...data, updated_at: S.serverTimestamp(), updated_by: state.email }, { merge: true });
+          batch.set(S.doc(db, "brands", id), { ...stamp(data), updated_at: S.serverTimestamp(), updated_by: state.email }, { merge: true });
         await batch.commit();
       }
     },
@@ -692,7 +1110,7 @@ async function startFirebase() {
         }
         state.loaded = true;
         note($("board-msg"), "");
-        render();
+        renderAll();
       },
       (err) => {
         console.error(err);
@@ -703,7 +1121,7 @@ async function startFirebase() {
             ? "The database refused access. Check that the rules from firestore.rules are published (Firestore Database → Rules) and that you’re signed in with an allowed account."
             : `Couldn’t load the list (${err.code || err.message}). Reload to try again.`,
         );
-        render();
+        renderAll();
       },
     );
   });
@@ -730,16 +1148,35 @@ const MOCK_ANSWERS = {
   2: { zizi_w: 4, zizi_owns: false, zizi_note: "" },
   7: { zizi_w: 2, zizi_owns: false, zizi_note: "" },
 };
+// Pipeline sample: day offsets from today, so one follow-up is always overdue.
+function mockPipeline() {
+  const day = (n) => isoDay(new Date(Date.now() + n * 864e5));
+  return {
+    1: { status: "in_talks", contact_name: "Alex Sample", contact_title: "Partnerships lead", contact_email: "alex@example.com", date_sent: day(-12), follow_up_due: day(-2), last_touch: day(-5), fee_quoted: "$1,500 + 30-day usage", next_action: "Send the revised deck" },
+    2: { status: "pitched", contact_name: "Sam Example", contact_email: "sam@example.org", date_sent: day(-6), follow_up_due: day(3) },
+    3: { status: "followed_up", contact_email: "creators@example.net", date_sent: day(-14), follow_up_due: day(-1), last_touch: day(-7) },
+    5: { status: "researching", next_action: "Find the studio manager’s name" },
+    7: { status: "contract", contact_name: "Jo Placeholder", contact_title: "Marketing manager", contact_email: "jo@example.com", fee_quoted: "$900", follow_up_due: day(7) },
+    8: { status: "pitched", contact_name: "Online form", date_sent: day(-3), follow_up_due: day(4) },
+    9: { status: "live", contact_name: "Riley Test", contact_email: "events@example.org", fee_quoted: "Hosted evening, $1,200", follow_up_due: day(-20) },
+    10: { status: "hold", next_action: "Revisit in spring" },
+    11: { status: "declined", contact_email: "creators@example.net", last_touch: day(-9) },
+    12: { status: "dropped", next_action: "" },
+  };
+}
 
 function startMock() {
   $("mockbar").hidden = false;
   document.title = `Mock · ${document.title}`;
   const yesterday = new Date(Date.now() - 864e5);
+  const crm = mockPipeline();
   for (const row of MOCK_ROWS) {
     const a = MOCK_ANSWERS[row.rank];
     state.rows.set(docId(row.rank), {
       template: "1",
       ...row,
+      status: "new",
+      ...crm[row.rank],
       zizi_w: null,
       zizi_owns: false,
       zizi_note: "",
@@ -750,22 +1187,21 @@ function startMock() {
   state.loaded = true;
   const failEveryOther = params.get("fail") === "1"; // ?mock=1&fail=1 exercises the retry path
   let attempts = 0;
+  const local = (data) => Object.fromEntries(Object.entries(data).map(([k, v]) => [k, v === NOW ? new Date() : v]));
 
   backend = {
     save: (id, patch) =>
       new Promise((resolve, reject) =>
         setTimeout(() => {
           if (failEveryOther && attempts++ % 2 === 0) return reject(new Error("Mock failure (fail=1)"));
-          const now = new Date();
-          const data = Object.fromEntries(Object.entries(patch).map(([k, v]) => [k, v === NOW ? now : v]));
-          state.rows.set(id, { ...state.rows.get(id), ...data, updated_at: now, updated_by: state.email });
-          render();
+          state.rows.set(id, { ...state.rows.get(id), ...local(patch), updated_at: new Date(), updated_by: state.email });
+          renderAll();
           resolve();
         }, 300),
       ),
     importDocs: async (docs) => {
-      for (const { id, data } of docs) state.rows.set(id, { ...(state.rows.get(id) || {}), ...data, updated_at: new Date(), updated_by: state.email });
-      render();
+      for (const { id, data } of docs) state.rows.set(id, { ...(state.rows.get(id) || {}), ...local(data), updated_at: new Date(), updated_by: state.email });
+      renderAll();
     },
     signOut: () => {
       leaveRole();

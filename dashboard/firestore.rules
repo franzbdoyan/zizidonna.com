@@ -11,12 +11,17 @@
 //   2. Those two accounts can read every document in the `brands` collection.
 //   3. They can create and update `brands` documents, as long as the document id
 //      is a three-digit rank (001–999), only the dashboard's own fields are used,
-//      Zizi's 0–5 answer is a whole number from 0 to 5 (or empty), and the
-//      `updated_by` stamp is the email of whoever is signed in.
-//   4. Nobody can delete a brand from the dashboard. The dashboard never deletes;
+//      Zizi's 0–5 answer is a whole number from 0 to 5 (or empty), the pipeline
+//      status is one of the ten known values, the pipeline text fields are text,
+//      the three pipeline dates are yyyy-mm-dd (or empty), and the `updated_by`
+//      stamp is the email of whoever is signed in.
+//   4. The manager can change anything. Zizi can only change her own answers
+//      (zizi_w, zizi_owns, zizi_note, zizi_answered_at) and the edit stamp, so the
+//      Pipeline view is read-only for her here too, not just on screen.
+//   5. Nobody can delete a brand from the dashboard. The dashboard never deletes;
 //      if a row must go, delete it in the Firebase console (the console is not
 //      bound by these rules).
-//   5. Everything else, in any other collection, is denied to everyone.
+//   6. Everything else, in any other collection, is denied to everyone.
 
 rules_version = '2';
 
@@ -30,6 +35,18 @@ service cloud.firestore {
         && request.auth.token.email in ['franzbdoyan@gmail.com', 'zizidonnastyle@gmail.com'];
     }
 
+    function isManager() {
+      return request.auth.token.email == 'franzbdoyan@gmail.com';
+    }
+
+    // Rule 3 helpers: an optional text field, and an optional yyyy-mm-dd date (empty allowed).
+    function optText(d, k) {
+      return !(k in d) || d[k] is string;
+    }
+    function optDay(d, k) {
+      return !(k in d) || (d[k] is string && d[k].matches('^([0-9]{4}-[0-9]{2}-[0-9]{2})?$'));
+    }
+
     // Rule 3: the shape of a brand document after the write.
     function isValidBrand(brandId) {
       let d = request.resource.data;
@@ -37,20 +54,37 @@ service cloud.firestore {
         && d.keys().hasOnly([
              'rank', 'brand', 'category', 'score', 'verdict', 'route_in', 'template', 'url', 'notes',
              'zizi_w', 'zizi_owns', 'zizi_note', 'zizi_answered_at',
-             'manager_note', 'updated_at', 'updated_by'
+             'manager_note', 'updated_at', 'updated_by',
+             'status', 'contact_name', 'contact_title', 'contact_email',
+             'date_sent', 'follow_up_due', 'last_touch', 'fee_quoted', 'next_action'
            ])
         && (!('zizi_w' in d) || d.zizi_w == null || (d.zizi_w is int && d.zizi_w >= 0 && d.zizi_w <= 5))
         && (!('zizi_owns' in d) || d.zizi_owns is bool)
+        && (!('status' in d) || d.status in [
+             'new', 'researching', 'pitched', 'followed_up', 'in_talks',
+             'contract', 'live', 'hold', 'declined', 'dropped'
+           ])
+        && optText(d, 'contact_name') && optText(d, 'contact_title') && optText(d, 'contact_email')
+        && optText(d, 'fee_quoted') && optText(d, 'next_action')
+        && optDay(d, 'date_sent') && optDay(d, 'follow_up_due') && optDay(d, 'last_touch')
         && d.updated_by == request.auth.token.email;
     }
 
-    // Rules 2–4: the brand list.
+    // Rule 4: an update that touches only Zizi's answers and the edit stamp.
+    // (A create has no existing document, so only the manager can create.)
+    function onlyZiziAnswers() {
+      return resource != null
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['zizi_w', 'zizi_owns', 'zizi_note', 'zizi_answered_at', 'updated_at', 'updated_by']);
+    }
+
+    // Rules 2–5: the brand list.
     match /brands/{brandId} {
       allow read: if isTeam();
-      allow create, update: if isTeam() && isValidBrand(brandId);
+      allow create, update: if isTeam() && isValidBrand(brandId) && (isManager() || onlyZiziAnswers());
       allow delete: if false;
     }
 
-    // Rule 5 needs no line of its own: anything not matched above is denied.
+    // Rule 6 needs no line of its own: anything not matched above is denied.
   }
 }

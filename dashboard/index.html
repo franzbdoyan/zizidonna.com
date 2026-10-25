@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/assets/style.css">
-<link rel="stylesheet" href="/dashboard/dashboard.css">
-<script type="module" src="/dashboard/dashboard.js"></script>
+<link rel="stylesheet" href="/dashboard/dashboard.css?v=2">
+<script type="module" src="/dashboard/dashboard.js?v=2"></script>
 </head>
 <body class="dash">
 <a class="skip" href="#main">Skip to content</a>
@@ -73,6 +73,11 @@
   <section class="board" id="view-board" hidden aria-labelledby="board-title">
     <h1 class="sr-only" id="board-title">Brand list</h1>
 
+    <div class="viewswitch" role="group" aria-label="View">
+      <button type="button" data-view="brands" aria-pressed="true">Brands</button>
+      <button type="button" data-view="pipeline" aria-pressed="false">Pipeline</button>
+    </div>
+
     <div class="topbar">
       <div class="who">
         <span class="who-email" id="who-email"></span>
@@ -92,6 +97,9 @@
       <p class="fine tools-msg" id="tools-msg" role="status"></p>
     </div>
 
+    <p class="notice" id="board-msg" role="alert" hidden></p>
+
+    <div id="pane-brands">
     <div class="filters" role="search" aria-label="Filter brands">
       <div class="chips" id="chips" role="group" aria-label="Category"></div>
       <div class="filter-row">
@@ -107,9 +115,38 @@
       <p class="fine count" id="count-line" aria-live="polite"></p>
     </div>
 
-    <p class="notice" id="board-msg" role="alert" hidden></p>
     <div class="empty" id="empty" hidden></div>
     <div class="brand-list" id="brand-list"></div>
+    </div>
+
+    <div class="pipeline" id="pane-pipeline" hidden>
+      <div class="p-filters" role="search" aria-label="Filter pipeline">
+        <div class="p-chips" id="p-chips" role="group" aria-label="Status"></div>
+        <div class="p-row">
+          <label class="search">
+            <span class="sr-only">Search pipeline</span>
+            <input type="search" id="p-search" placeholder="Search brand, contact, notes" autocomplete="off" enterkeyhint="search">
+          </label>
+          <div class="p-sort" role="group" aria-label="Sort by">
+            <span class="p-sort-lab" aria-hidden="true">Sort</span>
+            <button type="button" data-sort="rank" aria-pressed="true">Rank</button>
+            <button type="button" data-sort="due" aria-pressed="false">Follow-up</button>
+            <button type="button" data-sort="status" aria-pressed="false">Status</button>
+          </div>
+          <label class="p-showall">
+            <input type="checkbox" id="p-showall">
+            <span>Show all</span><span class="sr-only"> statuses, including dropped and declined</span>
+          </label>
+        </div>
+        <p class="fine count" id="p-count" aria-live="polite"></p>
+      </div>
+      <p class="fine p-readonly" id="p-readonly" hidden>Read-only: you can follow every brand here; your manager keeps it up to date.</p>
+      <div class="p-head" id="p-head" aria-hidden="true">
+        <span>#</span><span>Brand</span><span>Category</span><span>Zizi</span><span>Status</span><span>Contact</span><span>Email</span><span>Follow-up</span>
+      </div>
+      <ul class="p-list" id="p-list"></ul>
+      <div class="empty" id="p-empty" hidden></div>
+    </div>
   </section>
 
 </main>

@@ -40,13 +40,13 @@ Search the HTML for `data-todo` to find every one.
 
 | Placeholder | Where | Replace with |
 |---|---|---|
-| `shopmy-link` | Home (twice), Cars | the ShopMy storefront URL once approved |
+| ~~`shopmy-link`~~ | Home (twice) | done: `https://shopmy.us/zizidonna` is live |
 | ~~`cal-link`~~ | Sessions (two buttons) | done: `cal.com/zizidonna/feature-first-session` and `/closet-edit`; update if the Cal.com username changes |
 | ~~`substack-publication`~~ | Home, Guides, Letter | done: `zizidonna.substack.com` |
 | `gumroad-proportions`, `gumroad-strong-nose` | Guides | Gumroad product links, and change the button text to "Buy", when the PDFs exist |
 | ~~`tally-form`~~ | Work with me, Contact | done: forms `OQDqX8` (partnership) and `X5xALj` (contact) |
 | ~~`manager-email`~~ | Work with me, Contact | done: `collab@zizidonna.com` (brands) and `info@zizidonna.com` (everything else), both Squarespace forwards |
-| `media-kit-link` | Work with me | keep, or swap for a PDF export of the media kit |
+| ~~`media-kit-link`~~ | Work with me | done: `/media-kit/` page with a PDF download button |
 | `about-her-words` | About | two or three sentences from Zizi |
 | `upcoming-shows` | Cars | the next car show, or remove the list |
 | `shopmy-driving-wardrobe` | Cars | remove `hidden` when the Driving-wardrobe collection exists |
@@ -64,7 +64,7 @@ Cloudflare Web Analytics works the same way with its own snippet.
 
 ## Dashboard
 
-`/dashboard/` is a private two-person page where the manager and Zizi work through the brand list (Google sign-in through Firebase; data in Cloud Firestore; only two accounts allowed, enforced by the database rules). Every page header links to it as "Login". It is `noindex` and not in `sitemap.xml`. No brand data is in this repository: the list is imported into the database from the private tracker CSV.
+`/dashboard/` is a private two-person page where the manager and Zizi work through the brand list (Google sign-in through Firebase; data in Cloud Firestore; only two accounts allowed, enforced by the database rules). It has two views over the same data: **Brands**, where Zizi answers "Would you buy or use this with your own money?" (0–5), and **Pipeline**, a small CRM for outreach status, contacts and follow-ups that only the manager can edit (Zizi sees it read-only). Every page header links to it as "Login". It is `noindex` and not in `sitemap.xml`. No brand data is in this repository: the list is imported into the database from the private tracker CSV.
 
 Setup, from creating the Firebase project to the first import, is in `setup-dashboard.md` in the parent project folder.
 
@@ -72,11 +72,11 @@ Setup, from creating the Firebase project to the first import, is in `setup-dash
 |---|---|
 | `dashboard/index.html` | the page |
 | `dashboard/dashboard.css` | its styles, on top of `assets/style.css` |
-| `dashboard/dashboard.js` | sign-in, live list, autosave, CSV import/export (manager only), mock mode |
+| `dashboard/dashboard.js` | sign-in, both views, autosave, CSV import/export (manager only), mock mode |
 | `dashboard/firebase-config.js` | the Firebase web config (public by design; placeholders until setup step 8) |
-| `dashboard/firestore.rules` | the security rules to paste into the Firebase console; the real lock |
+| `dashboard/firestore.rules` | the security rules to paste into the Firebase console; the real lock. Re-paste and **Publish** whenever this file changes (the Pipeline fields need the October 2026 version) |
 
-Preview the layout without Firebase at `/dashboard/?mock=1` (made-up rows, nothing saved; `&as=zizi` shows Zizi's view).
+Preview the layout without Firebase at `/dashboard/?mock=1` (made-up rows, nothing saved; `&as=zizi` shows Zizi's view; add `#pipeline` to open the Pipeline view).
 
 ## Editing
 
