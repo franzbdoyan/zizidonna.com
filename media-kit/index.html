@@ -9,14 +9,14 @@
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
   :root {
     --bg: #eef0f2; --surface: #f8f9fa; --fg: #1b1e23; --muted: #5a6270; --rule: #cfd4da;
     --accent: #c96f1f; --accent-soft: #f4e3d1;
-    --display: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
-    --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
-    --mono: "IBM Plex Mono", "SF Mono", Menlo, monospace;
+    --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Helvetica Neue", Arial, sans-serif;
+    --body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
+    --mono: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
@@ -24,40 +24,40 @@
   .wrap { max-width: 900px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); padding-block: 28px 72px; }
   .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 20px; padding-bottom: 18px; border-bottom: 1px solid var(--rule); margin-bottom: 28px; }
   .logo { font-family: var(--display); font-size: 24px; text-decoration: none; }
-  .btn { display: inline-block; font-family: var(--mono); font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; padding: 12px 18px; border: 1px solid var(--fg); color: var(--fg); }
+  .btn { display: inline-block; font-family: var(--mono); font-size: 12.5px; letter-spacing: 0; text-transform: none; text-decoration: none; padding: 12px 18px; border: 1px solid var(--fg); color: var(--fg); }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   .btn:hover { background: var(--fg); color: #fff; }
   .btn.primary:hover { background: #a85a16; border-color: #a85a16; }
-  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-  h1 { font-family: var(--display); font-weight: 500; font-size: clamp(44px, 9vw, 92px); line-height: .98; margin: 8px 0 14px; letter-spacing: -.01em; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--muted); }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(44px, 9vw, 92px); line-height: .98; margin: 8px 0 14px; letter-spacing: -.01em; }
   .tag { font-family: var(--display); font-size: clamp(20px, 2.8vw, 27px); line-height: 1.25; max-width: 30ch; margin: 0 0 20px; }
   .tag em { color: var(--accent); }
   .handles { display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--mono); font-size: 12.5px; color: var(--muted); margin-bottom: 28px; }
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; border-top: 1px solid var(--fg); border-bottom: 1px solid var(--rule); padding: 18px 0; margin-bottom: 36px; }
   .stat .n { font-family: var(--display); font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
   .stat .l { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
-  h2 { font-family: var(--display); font-weight: 500; font-size: 28px; line-height: 1.1; margin: 0 0 10px; }
+  h2 { font-family: var(--display); font-weight: 600; font-size: 28px; line-height: 1.1; margin: 0 0 10px; }
   section { margin-bottom: 40px; }
   p { margin: 0 0 12px; max-width: 66ch; }
   .lede { color: var(--muted); margin-bottom: 16px; }
   .pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
   .pillar { background: var(--surface); border: 1px solid var(--rule); padding: 16px; display: flex; flex-direction: column; gap: 8px; }
-  .pillar h3 { font-family: var(--display); font-weight: 500; font-size: 21px; line-height: 1.15; margin: 0; }
+  .pillar h3 { font-family: var(--display); font-weight: 600; font-size: 21px; line-height: 1.15; margin: 0; }
   .pillar p { font-size: 14px; margin: 0; }
   .pillar .proof { font-family: var(--mono); font-size: 12px; color: var(--accent); margin-top: auto; padding-top: 6px; }
   .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
   .box { border: 1px solid var(--rule); padding: 14px 16px; }
-  .box h4 { margin: 0 0 8px; font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .box h4 { margin: 0 0 8px; font-family: var(--mono); font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--muted); font-weight: 600; }
   ul { padding-left: 18px; margin: 0; }
   li { margin-bottom: 5px; font-size: 15px; }
   li::marker { color: var(--accent); }
   .tablewrap { overflow-x: auto; }
   table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
   th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid var(--rule); }
-  th { font-family: var(--mono); font-weight: 500; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  th { font-family: var(--mono); font-weight: 600; font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--muted); }
   td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .contact { border-top: 1px solid var(--fg); padding-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-  .contact .k { font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .contact .k { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--muted); margin-bottom: 4px; }
   .fine { font-size: 13px; color: var(--muted); }
   @media print {
     @page { margin: 14mm; }
