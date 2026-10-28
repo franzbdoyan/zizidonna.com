@@ -1,6 +1,6 @@
 # zizidonna.com
 
-Static site, no build step. Eight pages, one stylesheet, no JavaScript beyond an image fallback (the private dashboard below is the one exception). Hosted on GitHub Pages at the custom domain; the embeds (Cal.com, Gumroad, Substack, Tally, ShopMy) carry the booking, payments, email and forms.
+Static site, no build step. Eight pages, one stylesheet, no JavaScript on the public pages (the private dashboard below is the one exception). Hosted on GitHub Pages at the custom domain; the embeds (Cal.com, Gumroad, Substack, Tally, ShopMy) carry the booking, payments, email and forms.
 
 This folder is the whole repository. Keep the planning documents in the parent folder out of it; the repository is public.
 
@@ -44,15 +44,17 @@ Search the HTML for `data-todo` to find every one.
 | ~~`cal-link`~~ | Sessions (two buttons) | done: `cal.com/zizidonna/feature-first-session` and `/closet-edit`; update if the Cal.com username changes |
 | ~~`substack-publication`~~ | Home, Guides, Letter | done: `zizidonna.substack.com` |
 | `gumroad-proportions`, `gumroad-strong-nose` | Guides | Gumroad product links, and change the button text to "Buy", when the PDFs exist |
-| ~~`tally-form`~~ | Work with me, Contact | done: forms `OQDqX8` (partnership) and `X5xALj` (contact) |
-| ~~`manager-email`~~ | Work with me, Contact | done: `collab@zizidonna.com` (brands) and `info@zizidonna.com` (everything else), both Squarespace forwards |
-| ~~`media-kit-link`~~ | Work with me | done: `/media-kit/` page with a PDF download button |
+| ~~`tally-form`~~ | Brands, Contact | done: forms `OQDqX8` (partnership) and `X5xALj` (contact) |
+| ~~`manager-email`~~ | Brands, Contact | done: `collab@zizidonna.com` (brands) and `info@zizidonna.com` (everything else), both Squarespace forwards |
+| ~~`media-kit-link`~~ | Brands | done: `/media-kit/` page with a PDF download button |
 | `about-her-words` | About | two or three sentences from Zizi |
 | `upcoming-shows` | Cars | the next car show, or remove the list |
 | `shopmy-driving-wardrobe` | Cars | remove `hidden` when the Driving-wardrobe collection exists |
 | `recent-letters` | Letter | the three latest issues, once there are three |
 
-Images: see `assets/img/README.md`. Pages show a labelled placeholder until each file is dropped in.
+The `about-her-words`, `upcoming-shows` and `recent-letters` hooks carry the `hidden` attribute; remove it when the hook is filled. The two `gumroad-*` links are the "Notice by letter" buttons.
+
+Images: see `assets/img/README.md`.
 
 ## Analytics (optional, free)
 
@@ -71,7 +73,8 @@ Setup, from creating the Firebase project to the first import, is in `setup-dash
 | File | What it is |
 |---|---|
 | `dashboard/index.html` | the page |
-| `dashboard/dashboard.css` | its styles, on top of `assets/style.css` |
+| `dashboard/base.css` | a frozen copy of the public stylesheet as it was on 27 October 2026; the dashboard's header and layout depend on it; never edit |
+| `dashboard/dashboard.css` | its styles, on top of `dashboard/base.css` |
 | `dashboard/dashboard.js` | sign-in, both views, autosave, CSV import/export (manager only), mock mode |
 | `dashboard/firebase-config.js` | the Firebase web config (public by design; placeholders until setup step 8) |
 | `dashboard/firestore.rules` | the security rules to paste into the Firebase console; the real lock. Re-paste and **Publish** whenever this file changes (the Pipeline fields need the October 2026 version) |
@@ -80,4 +83,4 @@ Preview the layout without Firebase at `/dashboard/?mock=1` (made-up rows, nothi
 
 ## Editing
 
-Every page repeats the same header and footer; change them in all eight files (and `404.html` and `dashboard/index.html`). Styles live in `assets/style.css`. Colors and fonts are the CSS variables at the top.
+Every page repeats the same header and footer; change them in all nine public files (the eight pages and `404.html`); the dashboard has its own copy. Styles live in `assets/style.css`; the dashboard does not load it. Colours and fonts are the custom properties at the top.
