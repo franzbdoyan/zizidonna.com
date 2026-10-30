@@ -1,118 +1,284 @@
-/* zizidonna.com · style.css · v4 · public pages only (the dashboard loads /dashboard/base.css) */
+/* zizidonna.com · style.css · v6 · the third design, after ysl.com (October 2026)
+   Pure black and white, square corners, no shadows, no gradients. One sans for everything except the wordmark.
+   Every public page loads it; the inner pages and the media kit are written by tools/pages.py. */
 :root{
-  --bg:#fff;--fg:#111;
-  --display:"Bodoni Moda","Bodoni 72",Didot,"Didot LT STD","Playfair Display",Georgia,serif;
-  --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
-  --serif:Georgia,"Noto Serif","Times New Roman",serif;
-  --col:500px;--grid:1140px;
+  --black:#000;--white:#fff;
+  --wordmark:"Bodoni Moda","Bodoni 72",Didot,"Didot LT STD",serif;
+  /* Helvetica on Apple devices, Arial on Windows, Roboto on Android: never a humanist system face */
+  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --track:.12em;   /* the tracking of every uppercase word */
+  --edge:20px;     /* side gutter for text and the header */
+  --band:68px;     /* the vertical rhythm between sections */
+  --bar:64px;      /* header height */
+  color-scheme:light;
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--fg);font:400 19px/27px var(--serif)}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:var(--bar)}
+body{margin:0;background:var(--white);color:var(--black);font:400 16px/1.6 var(--sans)}
 img{display:block;max-width:100%;height:auto}
+picture{display:block}
 a{color:inherit;text-decoration:none}
+h1,h2,h3,p,ul,blockquote,figure{margin:0}
+h1,h2,h3{font:inherit}
+ul{padding:0;list-style:none}
 [hidden]{display:none!important}
-:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+:focus-visible{outline:2px solid currentColor;outline-offset:4px}
 .vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-.skip{position:absolute;left:-9999px;top:0;padding:12px 16px;background:var(--bg);font:400 17px/20px var(--sans)}
-.skip:focus{left:16px;z-index:1}
+.skip{position:absolute;left:-9999px;top:0;z-index:30;padding:14px 16px;background:var(--white);color:var(--black);font-size:12px;letter-spacing:var(--track);text-transform:uppercase}
+.skip:focus{left:var(--edge)}
 
-/* the label face: nav, Login, h1/h2 labels, buttons, footer, the 404 link line */
-.label,nav.main,footer.site,.act{font:400 13px/16px var(--sans);text-transform:uppercase;letter-spacing:.3em}
+/* the chrome voice: header, captions, labels, footer, buttons. Small, uppercase, tracked, never above 400 */
+.cap,header.site,footer.site,.btn{font-size:12px;line-height:16px;font-weight:400;letter-spacing:var(--track);text-transform:uppercase}
+.cap h2,.split blockquote{text-wrap:balance}
+.logo{font:400 32px/1 var(--wordmark);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+/* the call under a caption: a hairline under the word */
+.watch,.cap .l2{display:inline-block;margin-top:6px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
 
-/* header */
-header.site{text-align:center;padding:24px 16px 0}
-.logo{display:inline-block;font:400 72px/1 var(--display);text-transform:uppercase;letter-spacing:.12em;margin-left:.12em}
-nav.main{margin-top:12px}
-nav.main .row{display:inline}
-nav.main a{display:inline-block;padding:14px 8px}
-.dot{padding:0 2px}
-nav.main a[aria-current="page"]{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
-/* .login on the header's Login link is a hook for scripts and the README, not a style: the link is set by nav.main a like its neighbours */
+/* ---------- header: social left, wordmark centre, pages and the bag right; it stays at the top while the page scrolls, as on ysl.com ---------- */
+/* a white bar on every page, home included: her photographs are light at the top on one side and shaded on the other, so words laid on them cannot read in a single ink */
+header.site{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:var(--bar);padding:0 calc(var(--edge) - 10px);background:var(--white);color:var(--black)}
+header.site .logo{grid-column:2;padding:10px}
+header.site nav a,header.site .bag,details.menu summary{display:inline-flex;align-items:center;min-height:44px;padding:0 10px}
+nav.social{grid-column:1;justify-self:start;display:flex}
+header.site .right{grid-column:3;justify-self:end;display:flex;align-items:center}
+nav.main{display:flex}
+header.site .bag{min-width:44px;justify-content:center}
+.bag svg{width:18px;height:18px}
+header.site a:hover,footer.site a:hover,a.frame:hover .cap,a.split:hover .text{opacity:.6}
+header.site nav a[aria-current="page"],footer.site a[aria-current="page"]{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
 
-/* home */
-main{margin-top:50px}
-/* .grid, .after and main.plate are content-box: --grid and --col measure the pictures and the text, the gutters sit outside, so the home grid is 1140 and a plate 500, the width of the footer hairline */
-.grid{box-sizing:content-box;max-width:var(--grid);margin:0 auto;padding:0 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.grid a{display:block}
-.grid img{width:100%;aspect-ratio:4/5;object-fit:cover}
-.after{box-sizing:content-box;max-width:var(--col);margin:50px auto 0;padding:0 16px}
+/* the phone and tablet menu: a <details> element, so it opens with no JavaScript */
+details.menu{display:none;grid-column:1;justify-self:start}
+details.menu summary{list-style:none;cursor:pointer}
+details.menu summary::-webkit-details-marker{display:none}
+details.menu .when-open,details.menu[open] .when-closed{display:none}
+details.menu[open] .when-open{display:inline}
+/* z-index -1 inside the header's stacking context: the white sheet covers the page below the bar (CLOSE, wordmark, bag), and scrolls under it */
+details.menu .panel{position:fixed;inset:var(--bar) 0 0;z-index:-1;overflow-y:auto;padding:32px var(--edge) 48px;background:var(--white);color:var(--black)}
+details.menu .panel ul+ul{margin-top:32px}
+details.menu .panel a{display:flex;align-items:center;min-height:48px;padding:0;font-size:18px;line-height:24px;letter-spacing:.1em}
+/* while the sheet is open the page behind it is locked and out of the tab order, so focus never lands on a hidden link */
+body:has(details.menu[open]){overflow:hidden}
+body:has(details.menu[open]) :is(main,footer.site){visibility:hidden}
+body:has(details.menu[open]) .skip{display:none}
 
-/* plate pages */
-main.plate{box-sizing:content-box;max-width:var(--col);margin:50px auto 0;padding:0 16px}
-figure{margin:0}
-figure img{width:100%;aspect-ratio:4/5;object-fit:cover}
-figcaption{margin-top:24px}
-.label{display:block;margin:0 0 12px}
-/* guard: a heading that misses .label still sets at 19/27, never the browser's bold 38 px over the body's 27 px line */
-h1,h2,h3{font:inherit;margin:0 0 12px}
-p{margin:0 0 20px;overflow-wrap:anywhere}
-ul{margin:0 0 20px;padding-left:1.2em}
-figcaption>:last-child,.after>:last-child{margin-bottom:0}
-p a,li a{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
-/* the booking and notice links: a label word with a hairline under it and no box (none of the references has a bordered button); 44 px tall (16 + 14 + 14), on its own line */
-.act{display:inline-block;margin:0 0 24px;padding:14px 0;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
-.embed{margin:0 0 20px}
+/* ---------- home: photographs, each with one topic that opens its video on Instagram ---------- */
+/* a photograph that is a link, with its caption on it (white; .ink-black where the photograph is light at the bottom) */
+.frame{position:relative;display:block;overflow:hidden;color:var(--white)}
+.frame.ink-black{color:var(--black)}
+.frame picture,.frame img{width:100%;height:100%}
+.frame img{object-fit:cover}
+.frame .cap{position:absolute;left:var(--edge);right:var(--edge);bottom:40px;text-align:center}
+/* the focus ring goes round the caption, where it can be seen, not round the photograph's edge */
+.frame:focus-visible{outline:0}
+.frame:focus-visible .cap{left:50%;right:auto;width:max-content;max-width:calc(100% - 2*var(--edge));transform:translateX(-50%);outline:2px solid currentColor;outline-offset:10px}
+
+/* hero: the car photograph on up to three fifths so the whole car shows, the road portrait on the rest, edge to edge under the bar.
+   Its height fills the first screen (between 50vw and 58vw); the car's column is never wider than 1.03 times that height,
+   so its nearly square photograph is never cropped at the roof or her heels, and on 16:9 windows the road takes the spare width.
+   The row is minmax(0,1fr) so the pictures take the hero's height and never spill over the section below */
+.hero{display:grid;grid-template-columns:minmax(0,min(60%,calc(max(440px,50vw,min(100vh - var(--bar),58vw))*1.03))) minmax(0,1fr);grid-template-columns:minmax(0,min(60%,calc(max(440px,50vw,min(100svh - var(--bar),58vw))*1.03))) minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:max(440px,50vw,min(100vh - var(--bar),58vw));height:max(440px,50vw,min(100svh - var(--bar),58vw));overflow:hidden;background:var(--black)}
+/* the hero captions sit higher than the others: lower down they land on the road's lines */
+.hero .frame .cap{bottom:18%}
+.wide{aspect-ratio:16/10}
+.pair{display:grid;grid-template-columns:1fr 1fr}
+.pair .frame{aspect-ratio:4/5}
+
+/* the black bands: a photograph on one half, words on the other; the whole band is one link */
+.split{display:grid;grid-template-columns:1fr 1fr;background:var(--black);color:var(--white)}
+.split.reverse .photo{order:2}
+.split .photo img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.split .text{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--band) 60px;text-align:center}
+.split blockquote{max-width:20em;margin:0 0 32px;font-size:26px;line-height:1.4;font-weight:300;letter-spacing:0}
+.split .watch{padding:14px 0;margin-top:0}
+a.split:focus-visible{outline:0}
+a.split:focus-visible .watch{outline:2px solid var(--white);outline-offset:6px}
+
+/* the letter: Substack's own box on white, as before */
+.letter{padding:var(--band) var(--edge);text-align:center}
+.letter .embed{max-width:480px;margin:24px auto 12px}
+.letter iframe{display:block;width:100%;border:0}
+.letter p.cap a{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+
+/* ---------- inner pages, after a YSL product page: the photograph holds the left half while the words scroll on the right ---------- */
+.page{display:grid;grid-template-columns:1fr 1fr;align-items:start}
+.page .photo{position:sticky;top:var(--bar);height:calc(100vh - var(--bar));height:calc(100svh - var(--bar));min-height:520px;background:var(--black)}
+.page .photo picture,.page .photo img{width:100%;height:100%}
+.page .photo img{object-fit:cover}
+.page .words{max-width:600px;padding:var(--band) clamp(24px,6vw,96px) calc(var(--band)*1.5)}
+.page h1{margin:0 0 32px}
+.page p{margin:0 0 16px}
+.page p a:not(.btn),.kit p a:not(.btn){text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+.page .lead{margin-bottom:48px}
+.page .offer{margin:0 0 56px}
+.page .offer h2{margin:0 0 4px}
+.page .offer .meta{margin:0 0 16px}
+.page .notes p,.page .small{font-size:14px;line-height:1.6}
+.page .notes{padding-top:8px}
+.page .links{display:flex;flex-wrap:wrap;gap:0 28px;margin-top:24px}
+.page .links a{display:inline-flex;align-items:center;min-height:44px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+.page .after-btn{margin-top:28px}
+.embed{margin:24px 0 16px}
 .embed iframe{display:block;width:100%;border:0}
-/* the two Tally forms are taller than their height attributes (the partnership form about 730 px, the contact form about 630) and no script sizes them, so the frames get their full height here; the attributes and the URLs stay as they are */
+/* the two Tally forms are taller than their height attributes and no script sizes them, so the frames get their full height here */
 .embed iframe[src^="https://tally.so/embed/OQDqX8"]{height:780px}
 .embed iframe[src^="https://tally.so/embed/X5xALj"]{height:680px}
 
-/* footer */
-footer.site{max-width:var(--col);margin:85px auto 0;padding:24px 16px 48px;border-top:1px solid var(--fg);text-align:center}
-body.home footer.site{max-width:var(--grid)}
-footer.site a{display:inline-block;padding:14px 8px}
-/* plate pages: the six footer words need about 680 px at 13px/.3em and the column is 468, so they are set as two deliberate rows (About · Contact · Instagram / TikTok · YouTube · Pinterest) with the same .row spans the header uses; the home's 1140 px footer holds them on one line and carries no rows */
-body:not(.home) footer.site .row{display:block}
-/* the fine print is a sentence, so it is set in the serif, lowercase and untracked, at the label size (13 on a desk, 17 on the phone: no fourth size); quieter than the nav above it, as the legal lines on the reference sites are */
-footer.site .fine{font:400 13px/20px var(--serif);text-transform:none;letter-spacing:0;margin:8px 0 0;overflow-wrap:normal;text-wrap:balance}
+/* the one button: a solid black bar with white capitals, as YSL's ADD TO BAG */
+.btn{display:flex;align-items:center;justify-content:center;width:100%;max-width:360px;min-height:48px;margin:0;padding:0 28px;background:var(--black);color:var(--white)}
+.btn:hover{opacity:.8}
+.btn:focus-visible{outline:2px solid var(--black);outline-offset:3px}
 
-/* 760–1199: three columns still, the name smaller */
+/* ---------- media kit: a document for brands; on screen under the site's bar, printed as a clean page ---------- */
+.kit{max-width:1120px;margin:0 auto;padding:var(--band) var(--edge) calc(var(--band)*1.5)}
+.kit .print-top{display:none}
+.kit-title{display:grid;grid-template-columns:360px 1fr;gap:56px;align-items:end;margin-bottom:var(--band)}
+.kit-title h1.logo{display:block;margin:12px 0 20px;font-size:64px;line-height:1}
+.kit .tag{max-width:30ch;margin:0 0 24px;font-size:22px;line-height:1.4;font-weight:300}
+.kit .handles{display:flex;flex-wrap:wrap;gap:6px 24px;margin:0 0 28px}
+.kit .actions{display:flex;flex-wrap:wrap;align-items:center;gap:16px 28px;margin:0}
+.kit .actions .btn{width:auto}
+.kit .actions .mail{display:inline-flex;align-items:center;min-height:44px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+.figures{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin:0 0 var(--band)}
+.figures .n{display:block;margin-bottom:8px;font-size:48px;line-height:1;font-weight:300;letter-spacing:-.01em}
+.kit section{margin:0 0 var(--band)}
+.kit h2{margin:0 0 20px}
+.kit p{max-width:68ch;margin:0 0 16px}
+.subjects{display:grid;grid-template-columns:repeat(3,1fr);gap:40px 48px;margin-top:8px}
+.subjects h3{margin:0 0 8px}
+.subjects p{margin:0 0 8px}
+.subjects .stat{margin-top:12px}
+.charts{display:grid;grid-template-columns:repeat(3,1fr);gap:32px 48px;margin-top:32px}
+.charts p.cap{margin:0 0 12px}
+.bars{margin:0 0 24px}
+.bars li{display:grid;grid-template-columns:120px 1fr 44px;align-items:center;gap:12px;margin:0 0 8px;font-size:14px}
+.bars .bar{display:block;height:8px}
+.bars .bar span{display:block;height:100%;background:var(--black);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.bars .v{text-align:right;font-variant-numeric:tabular-nums}
+.row6{display:grid;grid-template-columns:repeat(6,1fr);margin:0 0 32px}
+.row6 img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.pieces li,.formats li{margin:0 0 10px;max-width:68ch}
+.kit .contact{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding-top:var(--band)}
+.kit .contact p{margin:0 0 6px}
+
+/* ---------- footer: black, two columns of words centred over the wordmark and the legal line ---------- */
+footer.site{background:var(--black);color:var(--white);padding:var(--band) var(--edge) 32px}
+footer.site .cols{display:grid;grid-template-columns:repeat(2,max-content);justify-content:center;gap:24px 120px}
+footer.site .cols a{display:inline-block;padding:6px 0}
+footer.site .logo{display:block;width:max-content;margin:var(--band) auto 20px;font-size:24px}
+footer.site .fine{text-align:center;font-size:11px}
+
+/* side by side on a desk, the two pair captions stand at the same height, high enough to clear her skirt hem */
+@media (min-width:760px){
+  .pair .frame .cap{bottom:11%}
+  .hero .frame:first-child .cap{left:calc(var(--edge) + 12px);right:auto;text-align:left}  /* on the dark bumper and grille, clear of the wheel */
+}
+
+/* the media kit on a tablet: a narrower portrait column and a smaller wordmark, two chart columns */
+@media (min-width:760px) and (max-width:1023px){
+  .kit-title{grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:40px}
+  .kit-title h1.logo{font-size:clamp(44px,6vw,64px)}
+  .charts{grid-template-columns:1fr 1fr}
+}
+
+/* ---------- below 1200: the bar no longer holds every word with air round the wordmark, so MENU takes their place ---------- */
 @media (max-width:1199px){
-  .logo{font-size:56px}
+  nav.social,nav.main{display:none}
+  details.menu{display:block}
+  footer.site .cols a{padding:14px 0}  /* tablets are touched: 16 + 14 + 14 = a 44px target */
+  /* on a phone or tablet the Strength caption would sit on the pale granite: black, at the top right instead */
+  .pair .frame:first-child{color:var(--black)}
+  .pair .frame:first-child .cap{top:20px;bottom:auto;left:52%;right:var(--edge);text-align:right}
 }
 
-/* phone, designed at 390 */
+/* ---------- phone, designed at 390 ---------- */
 @media (max-width:759px){
-  header.site{padding:12px 16px 0}
-  .logo{font-size:30px;padding:7px 0}  /* 30 + 7 + 7 = a 44 px tap target for the wordmark link */
-  nav.main{margin-top:6px}
-  nav.main .row{display:block}
-  .dot{display:none}
-  .label,nav.main,footer.site,.act{font-size:17px;line-height:20px;letter-spacing:.06em}
-  nav.main a,footer.site a{padding:10px 6px;line-height:24px}  /* 24 + 10 + 10 = 44 px targets; the shorter padding and the 24 px margin below bring the first picture up, nearer the references' phone pages */
-  main,main.plate{margin-top:24px}
-  .grid{grid-template-columns:repeat(2,1fr);gap:10px;padding:0 16px}
-  .after{margin-top:40px}
-  .act{padding:12px 0}
-  p a,li a{padding:12px 0}  /* a link inside a sentence is 21 px tall; vertical padding on an inline element widens its tap box to 45 px without moving the line */
-  footer.site{margin-top:60px;padding:20px 16px 40px}
-  footer.site .fine{font-size:17px;line-height:24px}
+  :root{--bar:56px}
+  .cap,header.site,footer.site,.btn{font-size:13px;line-height:18px}
+  header.site .logo{font-size:24px}
+  /* the two top photographs stack at 4:5, the whole width of the car first */
+  .hero{grid-template-columns:1fr;grid-template-rows:auto;height:auto;min-height:0;overflow:visible}
+  .hero .frame{aspect-ratio:4/5}
+  .hero .frame .cap{bottom:28px}
+  .hero .frame:first-child .cap{bottom:18%}  /* on the dark car body, above the road's yellow line */
+  .frame .cap{bottom:28px}
+  .wide{aspect-ratio:4/5}
+  .wide .cap{right:50%;text-align:left}  /* left of the gold buttons */
+  .pair{grid-template-columns:1fr}
+  .split{grid-template-columns:1fr}
+  .split.reverse .photo{order:0}
+  .split .text{padding:48px var(--edge) 56px}
+  .split blockquote{margin-bottom:24px;font-size:21px}
+  .letter{padding:56px var(--edge)}
+  /* inner pages: the photograph first at 4:5, then the words */
+  .page{grid-template-columns:1fr}
+  .page .photo{position:static;height:auto;min-height:0;aspect-ratio:4/5}
+  .page .words{max-width:none;padding:40px var(--edge) 56px}
+  .page h1{margin-bottom:24px}
+  .page p:not(.cap),.kit p:not(.cap){font-size:17px}
+  .page .notes p,.page .small{font-size:15px}
+  .btn{max-width:none}
+  .kit{padding-top:40px}
+  .kit-title{grid-template-columns:1fr;gap:28px}
+  .kit-title .portrait{width:60%}
+  .kit-title h1.logo{font-size:40px}
+  .kit .tag{font-size:19px}
+  .figures{grid-template-columns:1fr 1fr;gap:28px 20px}
+  .figures .n{font-size:36px}
+  .subjects,.charts{grid-template-columns:1fr;gap:32px}
+  .bars li{grid-template-columns:110px 1fr 40px}
+  .row6{grid-template-columns:repeat(3,1fr)}
+  .kit .contact{grid-template-columns:1fr}
+  footer.site{padding-top:48px}
+  footer.site .cols{gap:16px 56px}
+  footer.site .logo{margin-top:48px}
 }
 
-/* no motion anywhere; this only makes it explicit */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
 
-/* print */
+/* print: every photograph whole on its page, every caption in black under it */
 @media print{
+  header.site{position:static}
+  nav.social,nav.main,details.menu,header.site .bag,.skip,.letter .embed{display:none}
+  .hero{display:block;height:auto;min-height:0;background:none;overflow:visible}
+  .frame .cap{position:static;color:var(--black);padding:12px 0 0}
+  .frame img,.split .photo img{width:auto;max-width:100%;height:auto;max-height:8.5in;margin:0 auto;object-fit:contain}
+  .frame{overflow:visible}
+  .wide,.pair .frame{aspect-ratio:auto}
+  .pair,.split{display:block}
+  .split{background:none;color:var(--black)}
+  .frame,.split .photo,.split .text{break-inside:avoid}
+  footer.site{background:none;color:var(--black)}
+  .page{display:block}
+  .page .photo{position:static;height:auto;min-height:0;max-width:3.5in}
+  /* the media kit prints as a document: no site bar, no footer, its own one-line top; the PDF is made from this */
   @page{margin:14mm}
-  body{background:#fff;color:#000}
-  .skip,.embed{display:none}
-  figure,.grid a{break-inside:avoid}
-  footer.site{border-top-color:#000}
+  /* a Letter page is narrower than the phone breakpoint, so every column count is set again here */
+  body.kit-page header.site,body.kit-page footer.site,body.kit-page .skip,.kit .actions,.kit .contact{display:none}  /* the contact line moves into the print top */
+  .kit{max-width:none;padding:0;font-size:11px;line-height:1.45}
+  .kit .cap{font-size:8.5px;line-height:12px}
+  .kit .print-top{display:block;margin:0 0 16px}
+  .kit-title{grid-template-columns:130px 1fr;gap:22px;align-items:end;margin-bottom:20px;break-inside:avoid}
+  .kit-title .portrait{width:auto}
+  .kit-title h1.logo{margin:6px 0 10px;font-size:36px}
+  .kit .tag{max-width:none;margin-bottom:12px;font-size:14px}
+  .kit .handles{margin-bottom:0}
+  .figures{grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;break-inside:avoid}
+  .figures .n{margin-bottom:4px;font-size:26px}
+  .kit section{margin-bottom:18px}
+  .kit h2{margin-bottom:8px;break-after:avoid}
+  .kit p:not(.cap),.page p:not(.cap){max-width:none;margin-bottom:8px;font-size:11px}  /* as specific as the phone rule, which also matches a Letter page */
+  .subjects{grid-template-columns:repeat(3,1fr);gap:12px 22px}
+  .subjects>div,.charts>div,.bars,.row6,.kit .contact{break-inside:avoid}
+  .subjects .stat{margin-top:4px}
+  .charts{grid-template-columns:repeat(3,1fr);gap:12px 22px;margin-top:10px}
+  .bars{margin-bottom:10px}
+  .bars li{grid-template-columns:90px 1fr 32px;gap:8px;margin-bottom:4px;font-size:10px}
+  .row6{grid-template-columns:repeat(6,1fr);margin-bottom:10px}
+  .pieces li,.formats li{max-width:none;margin-bottom:4px}
+  .kit .contact{grid-template-columns:repeat(3,1fr);gap:16px;padding-top:6px}
+  .kit .contact p{margin-bottom:2px}
+  .kit a{text-decoration:none}
 }
-
-/* 404.html: the link line under the caption (Home · Sessions · Cars), 44 px tap targets, the words apart on the phone where the dots are hidden; the negative margin keeps the first word on the caption's left edge */
-main.plate p.label{margin-left:-8px}
-main.plate p.label a{display:inline-block;padding:14px 8px;text-decoration:none}
-@media (max-width:759px){
-  main.plate p.label{margin-left:-6px}
-  main.plate p.label a{padding:12px 6px}
-}
-/* 404.html: its footer (Instagram · TikTok · YouTube · Pinterest) needs 471 px in the 468 px column at 13px/.3em; 6 px side padding keeps it on one line; the vertical padding follows the 14 px desk / 10 px phone rules above, so the links stay 44 px tall */
-footer.site nav[aria-label="Social"] a{padding-left:6px;padding-right:6px}
-/* 404.html: its four words need about 400 px at 17px/.06em on the phone and the column is 358, so they are set as two .row spans (Instagram · TikTok / YouTube · Pinterest); one line on a desk, where the 468 px column holds them */
-footer.site nav[aria-label="Social"] .row{display:inline}
-@media (max-width:759px){footer.site nav[aria-label="Social"] .row{display:block}}
