@@ -4,35 +4,54 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Not here · Zizi Donna</title>
-<meta name="robots" content="noindex">
+<meta name="description" content="That page is gone, or never was.">
+<meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&display=swap">
-<link rel="stylesheet" href="/assets/style.css?v=4">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&amp;text=ZIDONA%20&amp;display=swap">
+<link rel="stylesheet" href="/assets/style.css?v=6">
 </head>
-<body>
+<body class="inner">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site">
+  <nav class="social" aria-label="Social"><a href="https://www.instagram.com/zizidonna" rel="me">Instagram</a><a href="https://www.tiktok.com/@zizidonna" rel="me">TikTok</a></nav>
+  <details class="menu">
+    <summary><span class="when-closed">Menu</span><span class="when-open">Close</span></summary>
+    <div class="panel">
+      <nav aria-label="Menu">
+        <ul><li><a href="https://www.instagram.com/zizidonna" rel="me">Instagram</a></li><li><a href="https://www.tiktok.com/@zizidonna" rel="me">TikTok</a></li></ul>
+        <ul><li><a href="/about/">About</a></li><li><a href="/sessions/">Sessions</a></li><li><a href="/collaborations/">Collaborations</a></li><li><a href="/contact/">Contact</a></li><li><a class="login" href="/dashboard/">Login</a></li></ul>
+      </nav>
+    </div>
+  </details>
   <a class="logo" href="/">Zizi Donna</a>
-  <nav class="main" aria-label="Main">
-    <span class="row"><a href="/sessions/">Sessions</a><span class="dot" aria-hidden="true">·</span><a href="/guides/">Guides</a><span class="dot" aria-hidden="true">·</span><a href="/cars/">Cars</a><span class="dot" aria-hidden="true">·</span><a href="/letter/">Letter</a><span class="dot" aria-hidden="true">·</span></span><span class="row"><a href="https://shopmy.us/zizidonna" target="_blank" rel="noopener">Shop<span class="vh"> (shopmy.us, opens in a new tab)</span></a><span class="dot" aria-hidden="true">·</span><a href="/brands/">Brands</a><span class="dot" aria-hidden="true">·</span><a class="login" href="/dashboard/">Login</a></span>
-  </nav>
+  <div class="right">
+    <nav class="main" aria-label="Main"><a href="/about/">About</a><a href="/sessions/">Sessions</a><a href="/collaborations/">Collaborations</a><a class="login" href="/dashboard/">Login</a></nav>
+    <a class="bag" href="https://shopmy.us/zizidonna" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4.75 8.75h14.5v11.5H4.75z"/><path d="M8.75 8.75V7a3.25 3.25 0 0 1 6.5 0v1.75"/></svg><span class="vh">My picks on ShopMy (opens in a new tab)</span></a>
+  </div>
 </header>
 
-<main id="main" class="plate">
-  <figure>
-    <img src="/assets/img/plate-walking-away.jpg" width="1200" height="1500" alt="Zizi Donna walking away across pale paving toward a glass entrance, in a black open-back dress" fetchpriority="high" decoding="async">
-    <figcaption>
-      <h1 class="label">Not here</h1>
-      <p>That page is gone, or never was.</p>
-      <p class="label"><a href="/">Home</a><span class="dot" aria-hidden="true">·</span><a href="/sessions/">Sessions</a><span class="dot" aria-hidden="true">·</span><a href="/cars/">Cars</a></p>
-    </figcaption>
-  </figure>
+<main id="main" class="page">
+  <div class="photo">
+      <picture>
+        <source type="image/avif" srcset="/assets/img/walking-away-960.avif 960w, /assets/img/walking-away-1440.avif 1440w, /assets/img/walking-away-2000.avif 2000w" sizes="(max-width:759px) 100vw, (max-aspect-ratio:3/2) calc((100vh - 64px) * .8), 50vw">
+        <img src="/assets/img/walking-away-1440.jpg" srcset="/assets/img/walking-away-960.jpg 960w, /assets/img/walking-away-1440.jpg 1440w, /assets/img/walking-away-2000.jpg 2000w" sizes="(max-width:759px) 100vw, (max-aspect-ratio:3/2) calc((100vh - 64px) * .8), 50vw" width="2000" height="2500" alt="Zizi Donna walking away in a long black dress, past a glass door" style="object-position:50% 35%" fetchpriority="high" decoding="async">
+      </picture>
+  </div>
+  <div class="words">
+    <h1 class="cap">Not here</h1>
+    <p>That page is gone, or never was.</p>
+    <ul class="cap links"><li><a href="/">Home</a></li><li><a href="/sessions/">Sessions</a></li><li><a href="/contact/">Contact</a></li></ul>
+  </div>
 </main>
 
 <footer class="site">
-  <nav aria-label="Social"><span class="row"><a href="https://www.instagram.com/zizidonna" rel="me">Instagram</a><span class="dot" aria-hidden="true">·</span><a href="https://www.tiktok.com/@zizidonna" rel="me">TikTok</a><span class="dot" aria-hidden="true">·</span></span><span class="row"><a href="https://www.youtube.com/@zizidonna" rel="me">YouTube</a><span class="dot" aria-hidden="true">·</span><a href="https://www.pinterest.com/zizidonna/" rel="me">Pinterest</a></span></nav>
+  <div class="cols">
+    <nav aria-label="Pages"><ul><li><a href="/about/">About</a></li><li><a href="/sessions/">Sessions</a></li><li><a href="/collaborations/">Collaborations</a></li><li><a href="/contact/">Contact</a></li><li><a href="/media-kit/">Media kit</a></li><li><a href="https://shopmy.us/zizidonna" target="_blank" rel="noopener">Shop<span class="vh"> (ShopMy, opens in a new tab)</span></a></li></ul></nav>
+    <nav aria-label="Follow"><ul><li><a href="https://www.instagram.com/zizidonna" rel="me">Instagram</a></li><li><a href="https://www.tiktok.com/@zizidonna" rel="me">TikTok</a></li><li><a href="https://www.youtube.com/@zizidonna" rel="me">YouTube</a></li><li><a href="https://www.pinterest.com/zizidonna/" rel="me">Pinterest</a></li></ul></nav>
+  </div>
+  <a class="logo" href="/">Zizi Donna</a>
   <p class="fine">© 2026 Zizi Donna</p>
 </footer>
 </body>

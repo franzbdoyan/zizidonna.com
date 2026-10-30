@@ -1,6 +1,13 @@
 # zizidonna.com
 
-Static site, no build step. Eight pages, one stylesheet, no JavaScript on the public pages (the private dashboard below is the one exception). Hosted on GitHub Pages at the custom domain; the embeds (Cal.com, Gumroad, Substack, Tally, ShopMy) carry the booking, payments, email and forms.
+Static site, no build step on the server. Six public pages (home, About, Sessions, Collaborations, Contact, 404), the media kit, one stylesheet, and no JavaScript on the public pages; the private dashboard below is the one exception. Hosted on GitHub Pages at the custom domain. The embeds and links carry the booking (Cal.com), email (Substack), forms (Tally) and shop (ShopMy).
+
+The design (third version, October 2026) follows ysl.com:
+- pure black and white, square corners, one sans and the Bodoni wordmark;
+- a sticky white bar: Instagram and TikTok on the left, About, Sessions, Collaborations and Login on the right, ShopMy behind the bag icon;
+- every photograph graded to one look.
+
+On the home page each photograph carries one topic and opens its Instagram video.
 
 This folder is the whole repository. Keep the planning documents in the parent folder out of it; the repository is public.
 
@@ -34,27 +41,12 @@ Domains → zizidonna.com → DNS.
 4. Leave the Google Cloud DNS nameservers as they are.
 5. Allow up to an hour, then check https://zizidonna.com in a private window. `www.zizidonna.com` redirects to the apex once GitHub sees both records.
 
-## Before launch: replace these placeholders
+## Things only you can change (outside this folder)
 
-Search the HTML for `data-todo` to find every one.
-
-| Placeholder | Where | Replace with |
-|---|---|---|
-| ~~`shopmy-link`~~ | Home (twice) | done: `https://shopmy.us/zizidonna` is live |
-| ~~`cal-link`~~ | Sessions (two buttons) | done: `cal.com/zizidonna/feature-first-session` and `/closet-edit`; update if the Cal.com username changes |
-| ~~`substack-publication`~~ | Home, Guides, Letter | done: `zizidonna.substack.com` |
-| `gumroad-proportions`, `gumroad-strong-nose` | Guides | Gumroad product links, and change the button text to "Buy", when the PDFs exist |
-| ~~`tally-form`~~ | Brands, Contact | done: forms `OQDqX8` (partnership) and `X5xALj` (contact) |
-| ~~`manager-email`~~ | Brands, Contact | done: `collab@zizidonna.com` (brands) and `info@zizidonna.com` (everything else), both Squarespace forwards |
-| ~~`media-kit-link`~~ | Brands | done: `/media-kit/` page with a PDF download button |
-| `about-her-words` | About | two or three sentences from Zizi |
-| `upcoming-shows` | Cars | the next car show, or remove the list |
-| `shopmy-driving-wardrobe` | Cars | remove `hidden` when the Driving-wardrobe collection exists |
-| `recent-letters` | Letter | the three latest issues, once there are three |
-
-The `about-her-words`, `upcoming-shows` and `recent-letters` hooks carry the `hidden` attribute; remove it when the hook is filled. The two `gumroad-*` links are the "Notice by letter" buttons.
-
-Images: see `assets/img/README.md`.
+- **Cal.com:** rename and reprice the two events to match the Sessions page. `feature-first-session` becomes "Style consultation", 1 hour, $125, and `closet-edit` becomes "Shopping consultation", 2 hours, $200. Keep the two links as they are.
+- **Substack and Tally:** their boxes cannot be styled from the site. Setting each account's accent colour to black makes them match.
+- **ShopMy:** make sure the storefront shows its own commission disclosure, since the site no longer carries one.
+- **Photographs:** larger files of two photographs would sharpen them on large high-resolution screens: the mother-and-daughter photograph (1333 px wide today) and the studio profile, IMG_5070 (1003 px).
 
 ## Analytics (optional, free)
 
@@ -73,8 +65,7 @@ Setup, from creating the Firebase project to the first import, is in `setup-dash
 | File | What it is |
 |---|---|
 | `dashboard/index.html` | the page |
-| `dashboard/base.css` | a frozen copy of the public stylesheet as it was on 27 October 2026; the dashboard's header and layout depend on it; never edit |
-| `dashboard/dashboard.css` | its styles, on top of `dashboard/base.css` |
+| `dashboard/dashboard.css` | its styles, on top of the site's `/assets/style.css` (header, footer, type and colours come from there); black and white like the rest of the site since 29 October 2026 |
 | `dashboard/dashboard.js` | sign-in, both views, autosave, CSV import/export (manager only), mock mode |
 | `dashboard/firebase-config.js` | the Firebase web config (public by design; placeholders until setup step 8) |
 | `dashboard/firestore.rules` | the security rules to paste into the Firebase console; the real lock. Re-paste and **Publish** whenever this file changes (the Pipeline fields need the October 2026 version) |
@@ -83,4 +74,14 @@ Preview the layout without Firebase at `/dashboard/?mock=1` (made-up rows, nothi
 
 ## Editing
 
-Every page repeats the same header and footer; change them in all nine public files (the eight pages and `404.html`); the dashboard has its own copy. Styles live in `assets/style.css`; the dashboard does not load it. Colours and fonts are the custom properties at the top.
+- **The look:** colours, type and layout live in `assets/style.css`. Bump `?v=6` in every page when it changes.
+- **The home page:** `index.html` is written by hand.
+- **The other pages:** About, Sessions, Collaborations, Contact, 404 and the media kit are written by `tools/pages.py` and `tools/mediakit.py` in the project folder.
+  - Edit the words there and run `python3 tools/pages.py`. That keeps the header and footer identical everywhere.
+  - `python3 tools/pages.py --check` confirms `index.html` still has the same header and footer.
+- **The media kit PDF:** after changing the media kit, serve the site locally and run `python3 tools/mediakit_pdf.py`.
+- **Photographs:** see `assets/img/README.md`.
+
+## Pages removed in October 2026
+
+Guides, Letter, Cars and Brands were removed. Brands became Collaborations, at `/collaborations/`. Their old addresses now show the 404 page.
